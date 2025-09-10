@@ -70,12 +70,12 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ tokenPrice, onHistoryClick 
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                   <img 
                     src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png" 
-                    alt="ORION" 
+                    alt="INOUT" 
                     className="w-6 h-6 object-contain"
                   />
                 </div>
                 <div>
-                  <div className="text-white font-bold text-base">ORION</div>
+                  <div className="text-white font-bold text-base">INOUT</div>
                   <div className="flex items-center space-x-1">
                     <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
                     <span className="text-green-400 text-xs font-medium">Polygon</span>
@@ -85,7 +85,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ tokenPrice, onHistoryClick 
 
               {/* Right Section - Price + Menu */}
               <div className="flex items-center space-x-3">
-                {/* ORION Price */}
+                {/* INOUT Price */}
                 <motion.div 
                   className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl px-3 py-2 border border-green-400/30"
                   initial={{ opacity: 0, scale: 0.9 }}

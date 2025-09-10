@@ -133,12 +133,12 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab = 'home', onTabChan
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg">
                     <img 
                       src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png" 
-                      alt="ORION" 
+                      alt="INOUT" 
                       className="w-full h-16 object-contain"
                     />
                   </div>
                   {/* <div>
-                    <div className="text-white font-bold text-base">ORION</div>
+                    <div className="text-white font-bold text-base">INOUT</div>
                     <div className="flex items-center space-x-1">
                       <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
                       <span className="text-green-400 text-xs font-medium">Network</span>

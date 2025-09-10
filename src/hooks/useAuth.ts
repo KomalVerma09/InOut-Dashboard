@@ -37,7 +37,7 @@ export const useAuth = () => {
 
   // Session management (10 minutes)
   const SESSION_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
-  const SESSION_KEY = 'orion-session';
+  const SESSION_KEY = 'inout-session';
 
   const setSession = () => {
     const sessionData = {

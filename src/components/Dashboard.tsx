@@ -241,7 +241,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeTab, onTabChange }) => {
                   <span>{getCountdownText()}</span>
                 </div>
               
-              {/* Mobile ORION Price Display */}
+              {/* Mobile INOUT Price Display */}
               {!isDesktop && processedData?.tokenPrice && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -365,7 +365,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeTab, onTabChange }) => {
           >
             {/* Header */}
             <motion.div variants={itemVariants} className="text-center">
-              {/* ORION Price Display */}
+              {/* INOUT Price Display */}
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -374,7 +374,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeTab, onTabChange }) => {
               >
                 <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-white font-semibold text-lg">
-                  1 ORIN : {(processedData?.tokenPrice || 0).toFixed(6)}
+                  1 INOUT : {(processedData?.tokenPrice || 0).toFixed(6)}
                 </span>
               </motion.div>
               

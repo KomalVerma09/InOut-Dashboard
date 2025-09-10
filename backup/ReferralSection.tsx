@@ -195,7 +195,7 @@ const ReferralSection: React.FC<ReferralSectionProps> = ({
             </div>
             <div>
               <h3 className="text-white font-bold text-xl font-orbitron">Share & Earn</h3>
-              <p className="text-indigo-400/80 text-sm">Invite friends to join ORION</p>
+              <p className="text-indigo-400/80 text-sm">Invite friends to join INOUT</p>
             </div>
           </div>
 

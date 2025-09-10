@@ -26,8 +26,8 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
   const { data: dashboardData, refetch: refetchDashboard } = useDashboardData();
   const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
-  const [fromToken, setFromToken] = useState<'USDT' | 'ORION'>('USDT');
-  const [toToken, setToToken] = useState<'USDT' | 'ORION'>('ORION');
+  const [fromToken, setFromToken] = useState<'USDT' | 'INOUT'>('USDT');
+  const [toToken, setToToken] = useState<'USDT' | 'INOUT'>('INOUT');
   const [slippage, setSlippage] = useState(5.0);
   const [isSwapping, setIsSwapping] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
@@ -49,15 +49,15 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
   }, []);
 
   // Get real-time token price from contract data
-  const tokenPrice = (dashboardData?.tokenPrice) || 0.278105; // Price in USDT per ORION
-  const exchangeRate = 1 / tokenPrice; // ORION per USDT
+  const tokenPrice = (dashboardData?.tokenPrice) || 0.278105; // Price in USDT per INOUT
+  const exchangeRate = 1 / tokenPrice; // INOUT per USDT
 
   // Calculate slippage and deduction based on token direction
   const getSlippageAndDeduction = (fromTokenType: string) => {
     if (fromTokenType === 'USDT') {
-      return { slippage: 5.0, deduction: 5.0 }; // 5% for USDT to ORION
+      return { slippage: 5.0, deduction: 5.0 }; // 5% for USDT to INOUT
     } else {
-      return { slippage: 10.0, deduction: 10.0 }; // 10% for ORION to USDT
+      return { slippage: 10.0, deduction: 10.0 }; // 10% for INOUT to USDT
     }
   };
 
@@ -105,7 +105,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
       const { deduction } = getSlippageAndDeduction(fromToken);
       
       if (fromToken === 'USDT') {
-        // USDT to ORION: amount * exchangeRate with 5% deduction
+        // USDT to INOUT: amount * exchangeRate with 5% deduction
         const totalTokens = amount * exchangeRate;
         console.log("totalTokens:", totalTokens);
         
@@ -113,7 +113,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
         const finalAmount = totalTokens - deductionAmount;
         setToAmount(finalAmount.toFixed(4));
       } else {
-        // ORION to USDT: amount * tokenPrice with 10% deduction
+        // INOUT to USDT: amount * tokenPrice with 10% deduction
         const totalUsdt = amount * tokenPrice;
         console.log("totalUsdt:", totalUsdt);
         
@@ -152,7 +152,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
       return;
     }
 
-    const availableBalance = fromToken === 'USDT' ? usdtBalance : orionBalance;
+    const availableBalance = fromToken === 'INOUT' ? usdtBalance : orionBalance;
     if (Number(fromAmount) > availableBalance) {
       toast.error('Insufficient balance');
       return;
@@ -162,10 +162,10 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
     
     try {
       if (fromToken === 'USDT') {
-        // USDT to ORION: Use mint function
+        // USDT to INOUT: Use mint function
         await buyToken();
       } else {
-        // ORION to USDT: Use burn function
+        // INOUT to USDT: Use burn function
         await sellToken();
       }
     } catch (error: any) {
@@ -181,7 +181,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
     }
   };
 
-  // Buy Token (USDT → ORION) - Using mint function
+  // Buy Token (USDT → INOUT) - Using mint function
   const buyToken = async () => {
     const depositval = parseFloat(fromAmount) || 0;
     const approvalAmount = parseUnits(depositval.toString(), 6); // USDT has 6 decimals
@@ -234,10 +234,10 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
         console.log('✅ USDT Approval confirmed');
       }
       
-      // Stage 2: Mint ORION tokens
+      // Stage 2: Mint INOUT tokens
       setSwapStage({
         stage: 'swapping',
-        message: 'Minting ORION tokens...',
+        message: 'Minting INOUT tokens...',
         progress: 60
       });
       
@@ -250,7 +250,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
         gasPrice: parseGwei('35'),
       });
       
-      console.log('✅ ORION Mint transaction:', mintTx);
+      console.log('✅ INOUT Mint transaction:', mintTx);
       
       // Stage 3: Confirming
       setSwapStage({
@@ -271,7 +271,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
           txHash: mintTx
         });
         
-        toast.success(`Successfully swapped ${fromAmount} USDT for ORION tokens!`);
+        toast.success(`Successfully swapped ${fromAmount} USDT for INOUT tokens!`);
         
         // Refresh balances and dashboard data after successful swap
         try {
@@ -313,18 +313,18 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
     }
   };
   
-  // Sell Token (ORION → USDT) - Using burn function
+  // Sell Token (INOUT → USDT) - Using burn function
   const sellToken = async () => {
     const depositval = parseFloat(fromAmount) || 0;
-    const approvalAmount = parseUnits(depositval.toString(), 18); // ORION has 18 decimals
+    const approvalAmount = parseUnits(depositval.toString(), 18); // INOUT has 18 decimals
     
     console.log('🔥 SELL TOKEN - Amount:', depositval, 'Wei:', approvalAmount.toString());
     
     try {
-      // Stage 1: Check and approve ORION allowance (for burn function)
+      // Stage 1: Check and approve INOUT allowance (for burn function)
       setSwapStage({
         stage: 'approving',
-        message: 'Checking ORION allowance...',
+        message: 'Checking INOUT allowance...',
         progress: 25
       });
       
@@ -335,12 +335,12 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
         args: [address, CONTRACTS.ORION_TOKEN.address],
       });
       
-      console.log('📊 Current ORION allowance:', currentAllowance?.toString());
+      console.log('📊 Current INOUT allowance:', currentAllowance?.toString());
       
       if (!currentAllowance || BigInt(currentAllowance.toString()) < approvalAmount) {
         setSwapStage({
           stage: 'approving',
-          message: 'Approving ORION spending...',
+          message: 'Approving INOUT spending...',
           progress: 35
         });
 
@@ -353,7 +353,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
           gasPrice: parseGwei('35'),
         });
         
-        console.log('✅ ORION Approval transaction:', approveTx);
+        console.log('✅ INOUT Approval transaction:', approveTx);
         
         // Wait for approval confirmation
         setSwapStage({
@@ -363,13 +363,13 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
         });
 
         await config.publicClient.waitForTransactionReceipt({ hash: approveTx });
-        console.log('✅ ORION Approval confirmed');
+        console.log('✅ INOUT Approval confirmed');
       }
       
-      // Stage 2: Burn ORION tokens
+      // Stage 2: Burn INOUT tokens
       setSwapStage({
         stage: 'swapping',
-        message: 'Burning ORION tokens...',
+        message: 'Burning INOUT tokens...',
         progress: 60
       });
       
@@ -382,7 +382,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
         gasPrice: parseGwei('35'),
       });
       
-      console.log('✅ ORION Burn transaction:', burnTx);
+      console.log('✅ INOUT Burn transaction:', burnTx);
       
       // Stage 3: Confirming
       setSwapStage({
@@ -403,7 +403,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
           txHash: burnTx
         });
         
-        toast.success(`Successfully swapped ${fromAmount} ORION for USDT!`);
+        toast.success(`Successfully swapped ${fromAmount} INOUT for USDT!`);
         
         // Refresh balances and dashboard data after successful swap
         try {
@@ -512,7 +512,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
               />
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                onClick={() => setFromToken(fromToken === 'USDT' ? 'ORION' : 'USDT')}
+                onClick={() => setFromToken(fromToken === 'USDT' ? 'INOUT' : 'USDT')}
                 className="flex items-center px-4 xxs:px-1 xs:px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold shadow-lg font-orbitron"
               >
                 {fromToken === 'USDT' ? (
@@ -571,7 +571,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
               />
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                onClick={() => setToToken(toToken === 'USDT' ? 'ORION' : 'USDT')}
+                onClick={() => setToToken(toToken === 'USDT' ? 'INOUT' : 'USDT')}
                 className="flex items-center px-4 xxs:px-1 xs:px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold shadow-lg font-orbitron"
               >
                 {toToken === 'USDT' ? (
@@ -638,7 +638,7 @@ const SwapComponent: React.FC<SwapComponentProps> = ({ onBack }) => {
               <span className="text-sm text-white">{slippage}%</span>
             </div>
             <div className="text-xs text-white/60 mb-2">
-              {fromToken === 'USDT' ? 'USDT → ORION: 5% deduction' : 'ORION → USDT: 10% deduction'}
+              {fromToken === 'USDT' ? 'USDT → INOUT: 5% deduction' : 'INOUT → USDT: 10% deduction'}
             </div>
             <div className="bg-white/10 rounded-lg p-2">
               <div className="text-xs text-white/80">

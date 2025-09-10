@@ -101,7 +101,7 @@ const TagNamePopup: React.FC<TagNamePopupProps> = ({ isOpen, onClose, onSubmit }
                 <User className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Set Your Tag Name</h3>
-              <p className="text-white/70 text-sm">Choose a unique identifier for your ORION profile</p>
+              <p className="text-white/70 text-sm">Choose a unique identifier for your INOUT profile</p>
             </div>
 
             <div className="space-y-4">

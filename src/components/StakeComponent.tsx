@@ -193,14 +193,14 @@ const StakeComponent: React.FC<StakeComponentProps> = ({ onBack }) => {
             <Wallet className="h-7 w-7 text-white" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-white font-orbitron">ORION STAKE DEPOSIT</h3>
+            <h3 className="text-xl font-bold text-white font-orbitron">INOUT STAKE DEPOSIT</h3>
             <p className="text-sm text-white/70">Stake tokens & earn daily returns</p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="p-4 rounded-2xl border border-indigo-800/20 bg-white/5">
-            <div className="text-xs text-white/70">ORION BALANCE</div>
+            <div className="text-xs text-white/70">INOUT BALANCE</div>
             <div className="text-white font-bold">
               <CountUpNumber end={orionBalance || 0} decimals={6} duration={2.5} />
             </div>

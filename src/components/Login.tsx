@@ -739,7 +739,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
                         backgroundClip: 'text'
                       }}
                     >
-                      Welcome to the ORION Family! 🚀
+                      Welcome to the INOUT Family! 🚀
                     </motion.h3>
                     
                     <p className="text-white/80 text-sm mb-4">

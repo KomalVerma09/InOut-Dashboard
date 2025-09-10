@@ -71,7 +71,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     },
   })
   
-  // Get ORION balance (mock for now since contract might not be deployed)
+  // Get INOUT balance (mock for now since contract might not be deployed)
   const { data: orionBalanceData, isLoading: orionLoading, refetch: refetchOrion } = useBalance({
     address,
     token: CONTRACTS.ORION_TOKEN.address,

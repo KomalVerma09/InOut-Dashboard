@@ -65,7 +65,7 @@ const TransactionPopup: React.FC<TransactionPopupProps> = ({
       setStep('validating');
       setErrorMessage('');
 
-      // Check ORION balance (must be >= 10)
+      // Check INOUT balance (must be >= 10)
       const orionBalance = await readContract(config, {
         address: CONTRACTS.ORION_TOKEN.address,
         abi: CONTRACTS.ORION_TOKEN.abi,
@@ -77,7 +77,7 @@ const TransactionPopup: React.FC<TransactionPopupProps> = ({
       
       if (orionBalanceFormatted < 10) {
         setStep('error');
-        setErrorMessage(`Insufficient ORION balance (${orionBalanceFormatted.toFixed(2)}). You need at least 10 ORION tokens to proceed.`);
+        setErrorMessage(`Insufficient INOUT balance (${orionBalanceFormatted.toFixed(2)}). You need at least 10 INOUT tokens to proceed.`);
         return;
       }
 
