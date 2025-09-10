@@ -339,7 +339,7 @@ const TourRewardPopup: React.FC<TourRewardPopupProps> = ({
                     className={isDesktop ? 'mb-4' : 'mb-3'}
                   >
                     <p className={`text-white/90 ${isDesktop ? 'text-xs' : 'text-2xs'} leading-relaxed`}>
-                      Your exceptional performance and dedication to the ORION NETWORK community has earned you this exclusive {selectedTour.title.toLowerCase()} experience. 
+                      Your exceptional performance and dedication to the INOUT NETWORK community has earned you this exclusive {selectedTour.title.toLowerCase()} experience. 
                       Join fellow top performers for an unforgettable journey combining business excellence with cultural exploration.
                     </p>
                   </motion.div>

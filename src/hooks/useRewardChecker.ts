@@ -85,7 +85,7 @@ export const useRewardChecker = () => {
           qualified: true,
           rewardType: 'milestone_achievement',
           title: 'Milestone Achievement',
-          description: 'You have successfully reached a significant milestone in your journey with ORION NETWORK. This achievement reflects your commitment and progress towards financial freedom.',
+          description: 'You have successfully reached a significant milestone in your journey with INOUT NETWORK. This achievement reflects your commitment and progress towards financial freedom.',
           icon: 'award',
           baseColor: 'blue',
           exitMessage: 'Well Done!'

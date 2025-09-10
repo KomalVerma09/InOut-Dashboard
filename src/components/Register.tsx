@@ -216,7 +216,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
         setAlert({
           type: 'success',
           title: 'Registration Successful!',
-          message: 'Welcome to ORION NETWORK! You can now login.',
+          message: 'Welcome to INOUT NETWORK! You can now login.',
           isVisible: true
         });
         
@@ -340,8 +340,8 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
                 className={`mx-auto ${isDesktop ? 'w-32 h-20' : 'w-20 h-20'} flex items-center justify-center mb-8`}
               >
                 <img 
-                  src="https://theorion.network/assets/img/orion-dark.png" 
-                  alt="ORION NETWORK" 
+                  src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png" 
+                  alt="INOUT NETWORK" 
                   className="w-full h-full object-contain"
                 />
               </motion.div>
@@ -483,13 +483,13 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
             className={`${isDesktop ? 'text-4xl' : 'text-3xl'} font-bold text-white mb-3`}
             variants={itemVariants}
           >
-            Join ORION
+            Join INOUT
           </motion.h1>
           <motion.p 
             className={`${isDesktop ? 'text-xl' : 'text-lg'} text-white/70 mb-2`}
             variants={itemVariants}
           >
-            Create your <span className="gradient-text font-semibold">ORION NETWORK</span> account
+            Create your <span className="gradient-text font-semibold">INOUT NETWORK</span> account
           </motion.p>
           <motion.div 
             className="flex items-center justify-center space-x-2 text-blue-400"

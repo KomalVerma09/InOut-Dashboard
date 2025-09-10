@@ -12,11 +12,11 @@ export const projectId = '54f21f6c7882333f76d6cb091036ba32';
 
 // Web3Modal Metadata
 export const metadata = {
-  name: 'ORION NETWORK',
-  description: 'Advanced Web3 Financial Platform',
-  url: 'https://theorion.network',
-  icons: ['https://theorion.network/assets/img/orion-dark.png'],
-  verifyUrl: 'https://theorion.network'
+  name: 'INOUT NETWORK',
+  description: 'decentralized financial ecosystem',
+  url: 'https://in-out.live',
+  icons: ['https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png'],
+  verifyUrl: 'https://in-out.live'
 };
 
 // Ensure project ID is valid

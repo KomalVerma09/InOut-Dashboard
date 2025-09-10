@@ -180,7 +180,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
         setAlert({
           type: 'success',
           title: 'Login Successful!',
-          message: 'Welcome back to ORION NETWORK',
+          message: 'Welcome back to INOUT NETWORK',
           isVisible: true
         });
         
@@ -304,7 +304,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
               className={`${isDesktop ? 'text-xl' : 'text-lg'} text-white/70 mb-2`}
               variants={itemVariants}
             >
-              Securely connect to access <span className="gradient-text font-semibold">ORION NETWORK</span>
+              Securely connect to access <span className="gradient-text font-semibold">INOUT NETWORK</span>
             </motion.p>
             <motion.div 
               className="flex items-center justify-center space-x-2 text-blue-400"
@@ -600,7 +600,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
             className={`${isDesktop ? 'text-xl' : 'text-lg'} text-white/70 mb-2`}
             variants={itemVariants}
           >
-            Sign in to <span className="gradient-text font-semibold">ORION NETWORK</span>
+            Sign in to <span className="gradient-text font-semibold">INOUT NETWORK</span>
           </motion.p>
           <motion.div 
             className="flex items-center justify-center space-x-2 text-blue-400"
