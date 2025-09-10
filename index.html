@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png" />
+      
+    
+    <!-- Mobile app meta tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#3b82f6" />
+
+    <!-- <meta name="description" content="THE INOUT NETWORK" /> -->
+    
+    <!-- iOS PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="INOUT NETWORK" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Android PWA meta tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="THE INOUT NETWORK" />
+    
+    <!-- Prevent zoom on inputs -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    
+    <title>INOUT | INOUT is a decentralized financial ecosystem</title>
+    <meta name="description" content="Your Gateway to Financial Growth" />
+    
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+      /* Critical CSS for loading screen */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #0a0f1c 0%, #1e293b 50%, #0f172a 100%);
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        overscroll-behavior: none;
+        overscroll-behavior-y: contain;
+      }
+      
+      /* Prevent zoom on iOS inputs */
+      input[type="number"],
+      input[type="email"],
+      input[type="password"],
+      input[type="text"],
+      input[type="tel"] {
+        font-size: 16px !important;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      
+      /* Loading screen */
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #0F0C29 0%, #302B63 50%, #24243e 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        color: white;
+      }
+      
+      .loading-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        animation: pulse-glow 2s infinite;
+        
+      }
+      
+      .loading-inner {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .loading-cube {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 8px;
+        animation: float 3s ease-in-out infinite;
+      }
+      
+      .loading-text {
+        font-size: 24px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+      }
+      
+      .loading-subtitle {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      
+      .loading-progress {
+        width: 200px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        margin-top: 32px;
+        overflow: hidden;
+      }
+      
+      .loading-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+        border-radius: 2px;
+        animation: loading-slide 2s ease-in-out infinite;
+      }
+      
+      @keyframes pulse-glow {
+        0%, 100% { 
+          transform: scale(1);
+        }
+        50% {  
+          transform: scale(1.05);
+        }
+      }
+      
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-8px) rotate(2deg); }
+        66% { transform: translateY(-4px) rotate(-2deg); }
+      }
+      
+      @keyframes loading-slide {
+        0% { transform: translateX(-100%); }
+        50% { transform: translateX(0%); }
+        100% { transform: translateX(100%); }
+      }
+      
+      /* Safe area support */
+      @supports (padding: max(0px)) {
+        .loading-screen {
+          padding-top: max(0px, env(safe-area-inset-top));
+          padding-bottom: max(0px, env(safe-area-inset-bottom));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Premium loading screen -->
+    <div id="loading" class="loading-screen">
+      <div class="loading-logo" >
+        <img 
+                    src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png" 
+                    alt="INOUT" 
+                    style="width: full; height: 60px;"
+                  />
+      </div>
+      <div class="loading-text">INOUT NETWORK</div>
+      <div class="loading-subtitle">Your Gateway to Financial Growth</div>
+      <div class="loading-progress">
+        <div class="loading-bar"></div>
+      </div>
+    </div>
+    
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <script>
+      // Enhanced loading screen with proper timing
+      let loadingComplete = false;
+      let appReady = false;
+      let errorOccurred = false;
+      
+      // Hide loading when both app and minimum time are ready
+      function hideLoading() {
+        if ((loadingComplete && appReady) || errorOccurred) {
+          const loading = document.getElementById('loading');
+          if (loading) {
+            loading.style.opacity = '0';
+            loading.style.transition = 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            setTimeout(() => {
+              loading.remove();
+            }, 800);
+          }
+        }
+      }
+      
+      // Minimum loading time for premium feel
+      setTimeout(() => {
+        loadingComplete = true;
+        hideLoading();
+      }, 600);
+      
+      // App ready event
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          appReady = true;
+          hideLoading();
+        }, 100);
+      });
+      
+      // Force hide loading after maximum time to prevent infinite loading
+      setTimeout(() => {
+        console.log('Force hiding loading screen after 5 seconds');
+        errorOccurred = true;
+        hideLoading();
+      }, 5000);
+      
+      // Hide loading on any error
+      window.addEventListener('error', (e) => {
+        console.error('JavaScript error detected:', e.error);
+        errorOccurred = true;
+        hideLoading();
+      });
+      
+      // Hide loading on unhandled promise rejection
+      window.addEventListener('unhandledrejection', (e) => {
+        console.error('Unhandled promise rejection:', e.reason);
+        errorOccurred = true;
+        hideLoading();
+      });
+      
+      // Prevent context menu on mobile
+      document.addEventListener('contextmenu', function(e) {
+        if (window.innerWidth <= 768) {
+          e.preventDefault();
+        }
+      });
+      
+      // Prevent double-tap zoom on mobile
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', function(event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+      
+      // Handle viewport changes for mobile browsers
+      function handleViewportChange() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }
+      
+      window.addEventListener('resize', handleViewportChange);
+      window.addEventListener('orientationchange', handleViewportChange);
+      handleViewportChange();
+      
+      // Haptic feedback simulation for supported devices
+      function triggerHaptic(type = 'light') {
+        if ('vibrate' in navigator) {
+          switch(type) {
+            case 'light':
+              navigator.vibrate(10);
+              break;
+            case 'medium':
+              navigator.vibrate(20);
+              break;
+            case 'heavy':
+              navigator.vibrate([30, 10, 30]);
+              break;
+          }
+        }
+      }
+      
+      // Make haptic feedback available globally
+      window.triggerHaptic = triggerHaptic;
+    </script>
+  </body>
+</html>

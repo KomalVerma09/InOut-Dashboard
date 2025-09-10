@@ -1,0 +1,1387 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "address[]",
+				"name": "_utilitys",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "Staking_Id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Deposit_Stake",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "referralAddress",
+				"type": "address"
+			}
+		],
+		"name": "RegUserEv",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "Staking_Id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "stakeStatus",
+				"type": "uint256"
+			}
+		],
+		"name": "StakeUpdates",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "from_user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "to_user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "level",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "RewardTypes",
+				"type": "uint256"
+			}
+		],
+		"name": "Staking_Reward",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Withdrwal_Staking",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "StakeRecords",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "stackID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "Stake_Value",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "Total_Stake",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "reward_Stake",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "Stake_DPR",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "isClosed",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "depositStake",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "directAddress",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "dircets",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "distFinder",
+		"outputs": [
+			{
+				"internalType": "address[5]",
+				"name": "coreAdd",
+				"type": "address[5]"
+			},
+			{
+				"internalType": "address[]",
+				"name": "refAdd",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "findReferral",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "_referral",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "forceStakeDeposit",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "getPrice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "giveawayAirdrop",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "harvestPotential",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalTPR",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "growthTPR",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "growthProfit",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "frozenProfit",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lapsReward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "growthTime",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "typePay",
+				"type": "bool"
+			}
+		],
+		"name": "harvestStakeing",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "promoExclued",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "level",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "isPromo",
+				"type": "uint256"
+			}
+		],
+		"name": "promoInclued",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "rewardPotantial",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "reward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "level",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rewardPrams",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "airDrop",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "activeAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "activeGrowth",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "fixedGrowth",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "redeemPer",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "securePer",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "vaultsPer",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "payInUsdt",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "isRedeem",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "isNewMember",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "maxStakeLimit",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "savingDetails",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "saveAdd",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "savePer",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[21]",
+				"name": "_affiliatePercent",
+				"type": "uint256[21]"
+			},
+			{
+				"internalType": "uint256[21]",
+				"name": "_levelPercent",
+				"type": "uint256[21]"
+			}
+		],
+		"name": "setMarketingCriteria",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_airDropAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_activeAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_activeGrowth",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_fixedGrowth",
+				"type": "uint256"
+			}
+		],
+		"name": "setRewardAmount",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[6]",
+				"name": "_rewardCriteria",
+				"type": "uint256[6]"
+			},
+			{
+				"internalType": "uint256[6]",
+				"name": "_rewardBonus",
+				"type": "uint256[6]"
+			}
+		],
+		"name": "setRewardCriteria",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_vaultsPer",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_securePer",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_redeemPer",
+				"type": "uint256"
+			}
+		],
+		"name": "setRewardPer",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bool",
+				"name": "_payInUsdt",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "_isRedeem",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "_isNewMember",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "_maxStakeLimit",
+				"type": "bool"
+			}
+		],
+		"name": "setSystemEnableAndDisable",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint8",
+				"name": "_COREDEPTH",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_DEDUCTION",
+				"type": "uint256"
+			}
+		],
+		"name": "setSystemPrams",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "stakeCounts",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "systemPrams",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "boosterReward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "boosterEnd",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "startupEnd",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "totalGains",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "totalAmount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalID",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "totalRemainTPR",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "totalTPR",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "growthTPR",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_boosterReward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "ExpireTime",
+				"type": "uint256"
+			}
+		],
+		"name": "updateBooster",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[5]",
+				"name": "_coreReward",
+				"type": "uint256[5]"
+			}
+		],
+		"name": "updateCorePer",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[4]",
+				"name": "growthPercent",
+				"type": "uint256[4]"
+			}
+		],
+		"name": "updateGrowth",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[2]",
+				"name": "_startupPercent",
+				"type": "uint256[2]"
+			},
+			{
+				"internalType": "uint256[2]",
+				"name": "_startupCriteria",
+				"type": "uint256[2]"
+			}
+		],
+		"name": "updateStartUp",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "ExpireTime",
+				"type": "uint256"
+			}
+		],
+		"name": "updateStratupTime",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "utilityAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint8",
+				"name": "utilitType",
+				"type": "uint8"
+			}
+		],
+		"name": "updateUtilityAddress",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "affiContract",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "runUnit",
+				"type": "uint256"
+			}
+		],
+		"name": "userDataFetch",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "userInfos",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "referral",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "lastDircetStaker",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalTeam",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "teamStake",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lastStake",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "userLevels",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "activeStakeCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "coreClub",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "joined",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "ref",
+				"type": "address"
+			}
+		],
+		"name": "userRealTimeInfo",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "activeDirect",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "directStake",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totTeam",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "othStake",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalStake",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "rewCount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "userRewardInfo",
+		"outputs": [
+			{
+				"internalType": "uint256[6]",
+				"name": "levelRewardStakes",
+				"type": "uint256[6]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "userRewards",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "airDrop",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "stakeReward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "affiliateReward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "stakeLevelReward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "coreClubReward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "rankReward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "vaultsReward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "frozenBuket",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lapsFrozen",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "redeemTopup",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "matureReward",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalWithdrwan",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "userStakeUpdate",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "userStakes",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "totalStake",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "rewardStake",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "matureStake",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "stakeDPR",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "stakeEarn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "harvestTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "matureRecord",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "userUpdate",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "utilityContract",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "viewAffiliate",
+		"outputs": [
+			{
+				"internalType": "uint256[21]",
+				"name": "percent",
+				"type": "uint256[21]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "viewCorePercent",
+		"outputs": [
+			{
+				"internalType": "uint256[5]",
+				"name": "percent",
+				"type": "uint256[5]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "viewGrowth",
+		"outputs": [
+			{
+				"internalType": "uint256[4]",
+				"name": "percent",
+				"type": "uint256[4]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "viewReward",
+		"outputs": [
+			{
+				"internalType": "uint256[6]",
+				"name": "percent",
+				"type": "uint256[6]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "viewRewardCriteria",
+		"outputs": [
+			{
+				"internalType": "uint256[6]",
+				"name": "percent",
+				"type": "uint256[6]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "viewStakeLevel",
+		"outputs": [
+			{
+				"internalType": "uint256[21]",
+				"name": "percent",
+				"type": "uint256[21]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "viewStartupCriteria",
+		"outputs": [
+			{
+				"internalType": "uint256[2]",
+				"name": "percent",
+				"type": "uint256[2]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "viewStartupPercent",
+		"outputs": [
+			{
+				"internalType": "uint256[2]",
+				"name": "percent",
+				"type": "uint256[2]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
