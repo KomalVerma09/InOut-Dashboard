@@ -20,6 +20,18 @@ const TourRewardPopup: React.FC<TourRewardPopupProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // 🔒 Scroll lock jab popup open ho
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     if (isOpen) {
       // Auto close after 10 seconds
@@ -144,7 +156,7 @@ const TourRewardPopup: React.FC<TourRewardPopupProps> = ({
           initial="hidden"
           animate="visible"
           exit="hidden"
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-60 flex items-center justify-center p-4 overflow-hidden"
+          className="fixed top-20 inset-0 bg-black/70 backdrop-blur-sm z-60 flex items-center justify-center p-4 overflow-hidden z-10"
           onClick={onClose}
         >
           {/* Confetti Animation */}
