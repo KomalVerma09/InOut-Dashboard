@@ -100,6 +100,19 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ onBack, onViewTeamHistory }
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  
+  // 🔒 Scroll lock effect
+  useEffect(() => {
+    if (selectedTransaction) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [selectedTransaction]);
+
   // Fetch data from API
   const fetchHistoryData = async () => {
     if (!address) return;
@@ -277,76 +290,78 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ onBack, onViewTeamHistory }
     }
   };
 
-  // Mobile Layout
+  // Updated Layout with Table in Container
   return (
-    <div className={`min-h-screen ${isDesktop ? 'desktop-bg' : 'mobile-bg'} ${isDesktop ? '' : 'pt-20 pb-20'}`}>
-      <div className={`space-y-6 ${isDesktop ? 'max-w-4xl mx-auto p-8' : 'px-4 py-6'}`}>
+    <div className={`min-h-screen  ${isDesktop ? '' : 'pt-16 pb-24'}`}>
+      <div className={` max-w-3xl mx-auto space-y-8 p-6 md:p-10 border border-indigo-800/20 shadow-2xl rounded-3xl bg-gradient-to-br from-gray-900 via-indigo-950 to-black`}>
 
         {/* Header */}
-        <div className={`flex items-center justify-between ${isDesktop ? 'mb-8' : 'mb-6'}`}>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onBack}
-            className={`${isDesktop ? 'p-4 glass-card rounded-2xl' : 'p-3 glass-card-mobile rounded-2xl'} text-white hover:bg-white/10 transition-all`}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </motion.button>
-          <h2 className={`${isDesktop ? 'text-2xl' : 'text-xl'} font-bold text-white`}>Transaction History</h2>
-          <div className="w-12"></div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={onBack}
+                      className="p-3 rounded-2xl bg-white/5 hover:bg-white/10"
+                    >
+                      <ArrowLeft className="h-5 w-5 text-white" />
+                    </motion.button>
+            <h2 className="text-3xl font-extrabold text-indigo-200 tracking-wide">History Overview</h2>
+          </div>
+          <div className="text-indigo-400 text-sm font-medium">
+            {startItem}-{endItem} of {totalCount} Entries • Page {currentPage}/{totalPages}
+          </div>
         </div>
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-indigo-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search transactions..."
-            className={`w-full pl-12 pr-4 ${isDesktop ? 'py-4 text-base' : 'py-3 text-sm'} bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:border-blue-400 transition-all`}
+            placeholder="Filter entries..."
+            className="w-full pl-12 pr-4 py-3 bg-gray-800/30 border border-indigo-800/20 rounded-full text-indigo-200 placeholder-indigo-400 focus:outline-none focus:border-indigo-500 transition-colors shadow-2xl"
           />
         </div>
 
-        {/* Filter Tabs - Mobile Optimized */}
+        {/* Filter Tabs */}
         {!isDesktop ? (
-          <div className="space-y-3">
-            {/* Filter Toggle Button */}
+          <div className="space-y-4">
             <motion.button
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => setShowFilters(!showFilters)}
-              className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl text-white"
+              className="w-full flex items-center justify-between py-3 px-5 bg-gray-800/40 border border-indigo-800/20 rounded-full text-indigo-200 shadow-2xl"
             >
-              <div className="flex items-center space-x-3">
+              <span className="font-medium capitalize flex items-center gap-2">
                 {getTypeIcon(filterType, {})}
-                <span className="font-semibold capitalize">{filterType}</span>
-              </div>
+                {filterType}
+              </span>
               <motion.div
-                animate={{ rotate: showFilters ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
+                animate={{ rotate: showFilters ? 90 : 0 }}
+                transition={{ duration: 0.3 }}
               >
-                <Filter className="h-5 w-5 text-white/60" />
+                <Filter className="h-5 w-5 text-indigo-400" />
               </motion.div>
             </motion.button>
 
-            {/* Filter Options */}
             {showFilters && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="grid grid-cols-2 gap-3"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex flex-wrap gap-3 justify-center"
               >
                 {[
-                  { key: 'deposits', label: 'Deposits', icon: ArrowDownLeft, color: 'from-green-400 to-green-600' },
-                  { key: 'withdrawals', label: 'Withdrawals', icon: ArrowUpRight, color: 'from-red-400 to-red-600' },
-                  { key: 'referrals', label: 'Referrals', icon: Users, color: 'from-blue-400 to-blue-600' },
-                  { key: 'rewards', label: 'Rewards', icon: Gift, color: 'from-purple-400 to-purple-600' },
-                  { key: 'team', label: 'Team', icon: Users, color: 'from-orange-400 to-orange-600' },
+                  { key: 'deposits', label: 'Deposits', icon: ArrowDownLeft, color: 'bg-green-700 hover:bg-green-600' },
+                  { key: 'withdrawals', label: 'Withdrawals', icon: ArrowUpRight, color: 'bg-red-700 hover:bg-red-600' },
+                  { key: 'referrals', label: 'Referrals', icon: Users, color: 'bg-blue-700 hover:bg-blue-600' },
+                  { key: 'rewards', label: 'Rewards', icon: Gift, color: 'bg-purple-700 hover:bg-purple-600' },
+                  { key: 'team', label: 'Team', icon: Users, color: 'bg-orange-700 hover:bg-orange-600' },
                 ].map((type) => (
                   <motion.button
                     key={type.key}
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.92 }}
                     onClick={() => {
                       if (type.key === 'team') {
                         console.log('📱 MOBILE: Team button clicked, calling onViewTeamHistory');
@@ -357,22 +372,19 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ onBack, onViewTeamHistory }
                         setShowFilters(false);
                       }
                     }}
-                    className={`flex items-center justify-center space-x-2 p-4 rounded-xl font-semibold transition-all ${
-                      filterType === type.key
-                        ? `bg-gradient-to-r ${type.color} text-white shadow-lg`
-                        : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'
+                    className={`flex items-center gap-2 py-2 px-4 rounded-full text-sm font-medium text-white transition-colors ${
+                      filterType === type.key ? `${type.color} shadow-2xl` : 'bg-gray-800/30 hover:bg-indigo-800/30 border border-indigo-800/20'
                     }`}
                   >
-                    <type.icon className="h-5 w-5" />
-                    <span className="text-sm">{type.label}</span>
+                    <type.icon className="h-4 w-4" />
+                    {type.label}
                   </motion.button>
                 ))}
               </motion.div>
             )}
           </div>
         ) : (
-          /* Desktop: Original horizontal tabs */
-          <div className="flex space-x-2 overflow-x-auto pb-2">
+          <div className="flex flex-wrap gap-3">
             {[
               { key: 'deposits', label: 'Deposits', icon: ArrowDownLeft },
               { key: 'withdrawals', label: 'Withdrawals', icon: ArrowUpRight },
@@ -391,200 +403,138 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ onBack, onViewTeamHistory }
                     setFilterType(type.key as any);
                   }
                 }}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
+                className={`flex items-center gap-2 py-2 px-5 rounded-full text-sm font-medium transition-colors ${
                   filterType === type.key
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white/5 text-white/70 hover:bg-white/10'
+                    ? 'bg-indigo-600 text-white shadow-2xl'
+                    : 'bg-gray-800/50 text-indigo-300 hover:bg-indigo-800/30 border border-indigo-800/20'
                 }`}
               >
                 <type.icon className="h-4 w-4" />
-                <span>{type.label}</span>
+                {type.label}
               </motion.button>
             ))}
           </div>
         )}
-        {/* Stats */}
-        <div className="flex items-center justify-between text-sm text-white/60">
-          <span>
-            Showing {startItem}-{endItem} of {totalCount} {filterType}
-          </span>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-        </div>
 
         {/* Loading State */}
         {isLoading && (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex justify-center py-16">
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full"
+              transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+              className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full"
             />
           </div>
         )}
 
-        {/* Transactions List */}
+        {/* Transactions List in Container */}
         {!isLoading && (
-          <div className="space-y-3">
-            <AnimatePresence>
-              {filteredTransactions.map((transaction, index) => (
-                <motion.div
-                  key={`${transaction.transaction || transaction.order_id || index}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setSelectedTransaction(transaction)}
-                  className={`${isDesktop ? 'glass-card rounded-2xl p-6' : 'glass-card-mobile rounded-xl p-4'} cursor-pointer hover:bg-white/10 transition-all ${
-                    isDesktop ? 'hover:scale-[1.02]' : ''
-                  }`}
-                >
-                  <div className={`flex items-center ${isDesktop ? 'space-x-4' : 'space-x-3'}`}>
-                    {/* Type Icon */}
-                    <div className={`${isDesktop ? 'w-14 h-14' : 'w-10 h-10'} bg-gradient-to-br ${getTypeColor(filterType)} rounded-xl flex items-center justify-center border flex-shrink-0`}>
-                      {getTypeIcon(filterType, transaction)}
-                    </div>
-
-                    {/* Transaction Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className={`flex items-center justify-between ${isDesktop ? 'mb-1' : 'mb-0.5'}`}>
-                        <h3 className={`text-white font-semibold ${isDesktop ? 'text-lg' : 'text-sm'} truncate pr-2`}>
-                          {getTransactionTitle(transaction)}
-                        </h3>
-                        <div className="flex items-center space-x-1 flex-shrink-0">
-                          {getStatusIcon(transaction)}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className={`text-white/70 ${isDesktop ? 'text-base' : 'text-xs'}`}>
-                            {transaction.date}
-                          </div>
-                          <div className={`text-white/50 ${isDesktop ? 'text-sm' : 'text-2xs'} truncate max-w-[120px]`}>
-                            {getTransactionSubtitle(transaction)}
-                          </div>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <div className={`${isDesktop ? 'text-xl' : 'text-base'} font-bold ${
-                            filterType === 'withdrawals' ? 'text-red-400' : 'text-green-400'
-                          }`}>
-                            {formatAmount(transaction.amount || transaction.latestDepo, filterType)}
-                          </div>
-                          <div className={`text-white/60 ${isDesktop ? 'text-base' : 'text-xs'}`}>
-                            USDT
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* More Options */}
-                    {isDesktop && (
-                      <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          <div className="bg-gray-800/30 border border-indigo-800/20 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-800/50 text-indigo-300 text-left text-sm">
+                    <th className="py-3 px-4 rounded-tl-xl">Type</th>
+                    <th className="py-3 px-4">Title</th>
+                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">Details</th>
+                    <th className="py-3 px-4">Amount</th>
+                    <th className="py-3 px-4 rounded-tr-xl">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AnimatePresence>
+                    {filteredTransactions.map((transaction, index) => (
+                      <motion.tr
+                        key={`${transaction.transaction || transaction.order_id || index}`}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ delay: index * 0.1 }}
+                        onClick={() => setSelectedTransaction(transaction)}
+                        className="bg-gray-800/20 hover:bg-indigo-800/20 cursor-pointer transition-colors border-b border-indigo-800/20"
                       >
-                        <MoreVertical className="h-4 w-4 text-white/40" />
-                      </motion.button>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                        <td className="py-4 px-4">
+                          <div className={`w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-tr ${getTypeColor(filterType)}`}>
+                            {getTypeIcon(filterType, transaction)}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 text-indigo-200 font-medium">{getTransactionTitle(transaction)}</td>
+                        <td className="py-4 px-4 text-indigo-400">{transaction.date}</td>
+                        <td className="py-4 px-4 text-indigo-500 text-sm">{getTransactionSubtitle(transaction)}</td>
+                        <td className={`py-4 px-4 font-bold ${filterType === 'withdrawals' ? 'text-red-400' : 'text-green-400'}`}>
+                          {formatAmount(transaction.amount || transaction.latestDepo, filterType)}
+                        </td>
+                        <td className="py-4 px-4">{getStatusIcon(transaction)}</td>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                </tbody>
+              </table>
 
-            {filteredTransactions.length === 0 && !isLoading && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-12"
-              >
-                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search className="h-8 w-8 text-white/40" />
-                </div>
-                <h3 className="text-white font-semibold mb-2">No transactions found</h3>
-                <p className="text-white/60 text-sm">Try adjusting your search or filter criteria</p>
-              </motion.div>
-            )}
+              {filteredTransactions.length === 0 && !isLoading && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-16 bg-gray-800/20 rounded-b-xl"
+                >
+                  <Search className="h-10 w-10 text-indigo-400 mx-auto mb-3" />
+                  <h3 className="text-indigo-200 font-medium mb-1">No entries available</h3>
+                  <p className="text-indigo-400 text-sm">Modify search or filters to see results</p>
+                </motion.div>
+              )}
+            </div>
           </div>
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && !isDesktop && (
-          <div className="flex items-center justify-center space-x-4">
+        {totalPages > 1 && (
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="flex items-center space-x-2 px-4 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white transition-all"
+              className="flex items-center gap-2 px-5 py-2 bg-gray-800/50 hover:bg-indigo-800/30 disabled:opacity-40 rounded-full text-indigo-300 transition-colors border border-indigo-800/20 shadow-2xl"
             >
               <ChevronLeft className="h-4 w-4" />
-              <span className="text-sm">Prev</span>
+              Previous
             </motion.button>
 
-            <div className="flex items-center space-x-2 px-4 py-2 bg-white/5 rounded-xl">
-              <span className="text-white text-sm font-semibold">
+            {!isDesktop ? (
+              <div className="px-5 py-2 bg-gray-800/50 rounded-full text-indigo-200 font-medium border border-indigo-800/20 shadow-2xl">
                 {currentPage} / {totalPages}
-              </span>
-            </div>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                  return (
+                    <motion.button
+                      key={pageNum}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-10 h-10 rounded-full font-medium transition-colors ${
+                        currentPage === pageNum
+                          ? 'bg-indigo-600 text-white shadow-2xl'
+                          : 'bg-gray-800/50 text-indigo-300 hover:bg-indigo-800/30 border border-indigo-800/20'
+                      }`}
+                    >
+                      {pageNum}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            )}
 
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="flex items-center space-x-2 px-4 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white transition-all"
+              className="flex items-center gap-2 px-5 py-2 bg-gray-800/50 hover:bg-indigo-800/30 disabled:opacity-40 rounded-full text-indigo-300 transition-colors border border-indigo-800/20 shadow-2xl"
             >
-              <span className="text-sm">Next</span>
-              <ChevronRight className="h-4 w-4" />
-            </motion.button>
-          </div>
-        )}
-
-        {/* Desktop Pagination */}
-        {totalPages > 1 && isDesktop && (
-          <div className="flex items-center justify-between">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="flex items-center space-x-2 px-4 py-2 bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white transition-all"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span>Previous</span>
-            </motion.button>
-
-            <div className="flex items-center space-x-2">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
-                return (
-                  <motion.button
-                    key={pageNum}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`w-10 h-10 rounded-lg font-semibold transition-all ${
-                      currentPage === pageNum
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-white/5 text-white/70 hover:bg-white/10'
-                    }`}
-                  >
-                    {pageNum}
-                  </motion.button>
-                );
-              })}
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className="flex items-center space-x-2 px-4 py-2 bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white transition-all"
-            >
-              <span>Next</span>
+              Next
               <ChevronRight className="h-4 w-4" />
             </motion.button>
           </div>
@@ -597,48 +547,48 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ onBack, onViewTeamHistory }
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-60 flex items-end justify-center p-4"
+              className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-6"
               onClick={() => setSelectedTransaction(null)}
             >
               <motion.div
-                initial={{ y: 100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 100, opacity: 0 }}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className={`${isDesktop ? 'max-w-md w-full' : 'w-full max-w-sm mx-4'} glass-card-mobile rounded-3xl p-6 space-y-4`}
+                className={`${isDesktop ? 'w-full max-w-lg' : 'w-full'} bg-gray-900/90 border border-indigo-800/20 rounded-3xl p-8 space-y-6 shadow-2xl`}
               >
                 <div className="flex items-center justify-between">
-                  <h3 className={`${isDesktop ? 'text-xl' : 'text-lg'} font-bold text-white`}>
+                  <h3 className="text-2xl font-bold text-indigo-200">
                     {getTransactionTitle(selectedTransaction)}
                   </h3>
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setSelectedTransaction(null)}
-                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                    className="p-2 hover:bg-indigo-800/30 rounded-full transition-colors"
                   >
-                    <X className="h-5 w-5 text-white/60" />
+                    <X className="h-6 w-6 text-indigo-400" />
                   </motion.button>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="text-white/70">Amount</span>
-                    <span className="text-white font-semibold text-right">
+                <div className="space-y-5 text-sm">
+                  <div className="flex justify-between border-b border-indigo-800/20 pb-2">
+                    <span className="text-indigo-400">Amount</span>
+                    <span className="text-indigo-200 font-medium">
                       {formatAmount(selectedTransaction.amount || selectedTransaction.latestDepo, filterType)} USDT
                     </span>
                   </div>
                   
-                  <div className="flex justify-between">
-                    <span className="text-white/70">Date</span>
-                    <span className="text-white font-semibold text-right">
+                  <div className="flex justify-between border-b border-indigo-800/20 pb-2">
+                    <span className="text-indigo-400">Date</span>
+                    <span className="text-indigo-200 font-medium">
                       {selectedTransaction.date}
                     </span>
                   </div>
                   
                   {selectedTransaction.transaction && (
-                    <div className="flex justify-between">
-                      <span className="text-white/70">Transaction Hash</span>
-                      <span className="text-white font-mono text-xs text-right">
+                    <div className="flex justify-between border-b border-indigo-800/20 pb-2">
+                      <span className="text-indigo-400">Transaction Hash</span>
+                      <span className="text-indigo-200 font-mono text-xs">
                         {selectedTransaction.transaction.slice(0, 10)}...{selectedTransaction.transaction.slice(-8)}
                       </span>
                     </div>
@@ -646,15 +596,15 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ onBack, onViewTeamHistory }
                   
                   {filterType === 'referrals' && (
                     <>
-                      <div className="flex justify-between">
-                        <span className="text-white/70">User Address</span>
-                        <span className="text-white font-mono text-xs text-right">
+                      <div className="flex justify-between border-b border-indigo-800/20 pb-2">
+                        <span className="text-indigo-400">User Address</span>
+                        <span className="text-indigo-200 font-mono text-xs">
                           {selectedTransaction.userWalletBase58.slice(0, 6)}...{selectedTransaction.userWalletBase58.slice(-4)}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-white/70">Status</span>
-                        <span className={`font-semibold text-right ${selectedTransaction.active_status ? 'text-green-400' : 'text-red-400'}`}>
+                      <div className="flex justify-between border-b border-indigo-800/20 pb-2">
+                        <span className="text-indigo-400">Status</span>
+                        <span className={`font-medium ${selectedTransaction.active_status ? 'text-green-400' : 'text-red-400'}`}>
                           {selectedTransaction.active_status ? 'Active' : 'Inactive'}
                         </span>
                       </div>
@@ -663,15 +613,15 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ onBack, onViewTeamHistory }
                   
                   {filterType === 'rewards' && (
                     <>
-                      <div className="flex justify-between">
-                        <span className="text-white/70">Reward Type</span>
-                        <span className="text-white font-semibold text-right text-xs">
+                      <div className="flex justify-between border-b border-indigo-800/20 pb-2">
+                        <span className="text-indigo-400">Reward Type</span>
+                        <span className="text-indigo-200 font-medium text-xs">
                           {selectedTransaction.reward_type}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-white/70">Level</span>
-                        <span className="text-white font-semibold text-right">
+                      <div className="flex justify-between border-b border-indigo-800/20 pb-2">
+                        <span className="text-indigo-400">Level</span>
+                        <span className="text-indigo-200 font-medium">
                           {selectedTransaction.level}
                         </span>
                       </div>
@@ -680,22 +630,22 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ onBack, onViewTeamHistory }
                   
                   {filterType === 'deposits' && (
                     <>
-                      <div className="flex justify-between">
-                        <span className="text-white/70">Order ID</span>
-                        <span className="text-white font-semibold text-right">
+                      <div className="flex justify-between border-b border-indigo-800/20 pb-2">
+                        <span className="text-indigo-400">Order ID</span>
+                        <span className="text-indigo-200 font-medium">
                           #{selectedTransaction.order_id}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-white/70">Status</span>
-                        <span className={`font-semibold text-right ${selectedTransaction.isUnlocked ? 'text-green-400' : 'text-yellow-400'}`}>
+                      <div className="flex justify-between border-b border-indigo-800/20 pb-2">
+                        <span className="text-indigo-400">Status</span>
+                        <span className={`font-medium ${selectedTransaction.isUnlocked ? 'text-green-400' : 'text-yellow-400'}`}>
                           {selectedTransaction.isUnlocked ? 'Unlocked' : 'Locked'}
                         </span>
                       </div>
                       {!selectedTransaction.isUnlocked && (
-                        <div className="flex justify-between">
-                          <span className="text-white/70">Remaining Time</span>
-                          <span className="text-white font-semibold text-right">
+                        <div className="flex justify-between border-b border-indigo-800/20 pb-2">
+                          <span className="text-indigo-400">Remaining Time</span>
+                          <span className="text-indigo-200 font-medium">
                             {selectedTransaction.remaining_time.days}d {selectedTransaction.remaining_time.hours}h
                           </span>
                         </div>
@@ -706,12 +656,12 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ onBack, onViewTeamHistory }
 
                 {selectedTransaction.transaction && (
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => window.open(`https://polygonscan.com/tx/${selectedTransaction.transaction}`, '_blank')}
-                    className={`w-full ${isDesktop ? 'py-3' : 'py-2'} bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded-2xl transition-all flex items-center justify-center space-x-2`}
+                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-full transition-colors flex items-center justify-center gap-2 shadow-2xl"
                   >
-                    <span className={isDesktop ? 'text-base' : 'text-sm'}>View on Explorer</span>
+                    View on Explorer
                     <ExternalLink className="h-4 w-4" />
                   </motion.button>
                 )}

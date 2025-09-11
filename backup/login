@@ -1,0 +1,195 @@
+import React,{useState,useEffect} from "react";
+import { motion } from "framer-motion";
+import Tilt from "react-parallax-tilt";
+import {
+  Shield,
+  Network,
+  Wallet,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+} from "lucide-react";
+import { useWeb3Modal } from "@web3modal/wagmi/react";
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from '../contexts/AuthContext';
+import { polygon } from 'wagmi/chains';
+
+const features = [
+  {
+    icon: <Shield className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400" />,
+    title: "Secure Connection",
+    subtitle: "Your login is protected with top-notch encryption.",
+  },
+  {
+    icon: <Network className="w-10 h-10 sm:w-12 sm:h-12 text-blue-400" />,
+    title: "Polygon Network",
+    subtitle: "Fast & low-cost transactions on Polygon.",
+  },
+  {
+    icon: <Wallet className="w-10 h-10 sm:w-12 sm:h-12 text-green-400" />,
+    title: "Multi-Wallet Support",
+    subtitle: "Connect with MetaMask, Trust, TokenPocket, or WalletConnect.",
+  },
+];
+
+const wallets = [
+  { name: "MetaMask", icon: "🦊" },
+  { name: "Trust Wallet", icon: "🔐" },
+  { name: "TokenPocket", icon: "📲" },
+  { name: "WalletConnect", icon: "🌐" },
+];
+
+interface LoginProps {
+  onSwitchToRegister: () => void;
+}
+
+
+const Login: React.FC<LoginProaps> = ({ onSwitchToRegister }) => {
+  const navigate = useNavigate();
+  const { open } = useWeb3Modal();
+  const { address, isConnected } = useAccount();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const { 
+    validateUser, 
+    isLoading, 
+    isRegistered, 
+    user,
+    isAuthenticated,
+    isWrongNetwork
+  } = useAuth();
+
+  const isWrongNetworkLocal = isConnected && chainId !== polygon.id;
+
+  React.useEffect(() => {
+    if (isConnected && address) {
+      // Wallet connect ho gaya hai, dashboard pe redirect karo
+      navigate("/dashboard");
+    }
+  }, [isConnected, address, navigate]);
+
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+
+  const nextSlide = () =>
+    setCurrentIndex((prev) => (prev + 1) % features.length);
+  const prevSlide = () =>
+    setCurrentIndex((prev) => (prev - 1 + features.length) % features.length);
+  
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/30 to-black flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+      {/* Header */}
+      <motion.div
+        className="flex flex-col items-center gap-3 mb-8 sm:mb-10 text-center"
+        initial={{ y: -40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+      >
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/40">
+          <Wallet className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+        </div>
+        <h1 className="text-2xl sm:text-4xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 bg-clip-text text-transparent drop-shadow-md font-orbitron">
+          Connect Your Wallet
+        </h1>
+        <p className="text-gray-400 text-xs sm:text-sm font-orbitron">
+          Securely connect to access INOUT NETWORK
+        </p>
+      </motion.div>
+
+      {/* Carousel */}
+      <div className="relative w-full max-w-[95%] sm:max-w-xl">
+        {/* Prev Button */}
+        <button
+          onClick={prevSlide}
+          className="absolute left-2 sm:-left-12 top-1/2 -translate-y-1/2 text-white p-2 sm:p-3 bg-purple-700/40 rounded-full hover:bg-purple-600/70 z-10"
+        >
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+
+        <motion.div
+          key={currentIndex}
+          className="flex justify-center"
+          initial={{ opacity: 0, scale: 0.9, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Tilt tiltMaxAngleX={15} tiltMaxAngleY={15} scale={1.05}>
+            <div className="bg-white/10 backdrop-blur-lg border border-purple-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl w-full sm:w-[550px] text-center">
+              <div className="flex justify-center mb-4">
+                {features[currentIndex].icon}
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                {features[currentIndex].title}
+              </h2>
+              <p className="text-gray-300 text-xs sm:text-sm">
+                {features[currentIndex].subtitle}
+              </p>
+            </div>
+          </Tilt>
+        </motion.div>
+
+        {/* Next Button */}
+        <button
+          onClick={nextSlide}
+          className="absolute right-2 sm:-right-12 top-1/2 -translate-y-1/2 text-white p-2 sm:p-3 bg-purple-700/40 rounded-full hover:bg-purple-600/70 z-10"
+        >
+          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+      </div>
+
+      {/* Wallet Options */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 sm:mt-10 w-full max-w-md sm:max-w-2xl">
+        {wallets.map((wallet) => (
+          <motion.button
+            key={wallet.name}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => open()}
+            className="flex flex-col items-center justify-center bg-white/10 backdrop-blur-lg border border-purple-500/30 rounded-xl p-3 sm:p-4 text-white hover:bg-purple-500/20 transition"
+          >
+            <span className="text-2xl sm:text-3xl mb-1 sm:mb-2">
+              {wallet.icon}
+            </span>
+            <span className="text-xs sm:text-sm">{wallet.name}</span>
+          </motion.button>
+        ))}
+      </div>
+
+      {/* Connect Wallet / Switch Network */}
+      <div className="mt-8 sm:mt-10">
+        {isConnected ? (
+          chainId !== 137 ? (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => switchChain && switchChain(137)}
+              className="px-6 sm:px-8 py-3 sm:py-4 bg-pink-600 text-white rounded-xl shadow-xl hover:bg-pink-700 transition"
+            >
+              Switch to Polygon
+            </motion.button>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 sm:px-8 py-3 sm:py-4 bg-purple-600 text-white rounded-xl shadow-xl flex items-center gap-2 hover:bg-purple-700 transition"
+            >
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+              {`${address?.slice(0, 6)}...${address?.slice(-4)}`}
+            </motion.button>
+          )
+        ) : (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => open()}
+            className="px-6 sm:px-8 py-3 sm:py-4 bg-purple-600 text-white rounded-xl shadow-xl hover:bg-purple-700 transition"
+          >
+            Connect Wallet
+          </motion.button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Login;

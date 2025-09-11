@@ -1,0 +1,533 @@
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useWeb3Modal } from '@web3modal/wagmi/react';
+import { useAccount, useChainId } from 'wagmi';
+import { polygon } from 'wagmi/chains';
+import { readContract } from 'wagmi/actions';
+import { config } from '../config/web3Config';
+import { CONTRACTS } from '../contracts';
+import { useAuth } from '../contexts/AuthContext';
+import Alert from './ui/Alert';
+import { 
+  Wallet, 
+  ArrowRight, 
+  ShieldCheck, 
+  AlertCircle,
+  Network,
+  Key,
+  Users,
+  Rocket,
+  Star
+} from 'lucide-react';
+
+interface LoginProps {
+  onSwitchToRegister: () => void;
+}
+
+const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
+  const navigate = useNavigate();
+  const { open } = useWeb3Modal();
+  const { isConnected, address } = useAccount();
+  const chainId = useChainId();
+  const { 
+    validateUser, 
+    isLoading, 
+    isRegistered, 
+    user,
+    isAuthenticated,
+    isWrongNetwork
+  } = useAuth();
+  
+  const isWrongNetworkLocal = isConnected && chainId !== polygon.id;
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+  const [referralInfo, setReferralInfo] = useState<{
+    address: string;
+    isLoading: boolean;
+  } | null>(null);
+  const [alert, setAlert] = useState<{
+    type: 'success' | 'warning' | 'error' | 'info';
+    title: string;
+    message: string;
+    isVisible: boolean;
+  }>({
+    type: 'info',
+    title: '',
+    message: '',
+    isVisible: false
+  });
+  const [previousAddress, setPreviousAddress] = useState<string | undefined>();
+
+  // Fetch referral information
+  const fetchReferralInfo = async (userAddress: string) => {
+    try {
+      setReferralInfo({ address: '', isLoading: true });
+      const affiliateData = await readContract(config, {
+        address: CONTRACTS.AFFILIATE_CONTRACT.address,
+        abi: CONTRACTS.AFFILIATE_CONTRACT.abi,
+        functionName: 'affiliateUser',
+        args: [userAddress],
+      });
+      
+      let referralAddress;
+      if (Array.isArray(affiliateData)) {
+        referralAddress = affiliateData[0];
+      } else if (affiliateData && typeof affiliateData === 'object') {
+        referralAddress = affiliateData.referral;
+      }
+      
+      if (referralAddress && referralAddress !== '0x0000000000000000000000000000000000000000') {
+        setReferralInfo({ address: referralAddress, isLoading: false });
+      } else {
+        setReferralInfo(null);
+      }
+    } catch (error) {
+      console.error('Error fetching referral info:', error);
+      setReferralInfo(null);
+    }
+  };
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Auto-navigate to dashboard if authenticated
+  useEffect(() => {
+    if (isAuthenticated && !isWrongNetworkLocal) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, isWrongNetworkLocal, navigate]);
+
+  // Handle wallet address change
+  useEffect(() => {
+    if (address && address !== previousAddress && previousAddress) {
+      setAlert({
+        type: 'info',
+        title: 'Wallet Changed',
+        message: `Switched to ${address.slice(0, 6)}...${address.slice(-4)}. Checking registration...`,
+        isVisible: true
+      });
+    }
+    setPreviousAddress(address);
+  }, [address, previousAddress]);
+
+  // Check registration status
+  useEffect(() => {
+    if (isConnected && !isLoading && isRegistered !== null) {
+      if (isRegistered === true) {
+        if (address) fetchReferralInfo(address);
+        setAlert({
+          type: 'success',
+          title: 'Account Verified',
+          message: 'Ready to access INOUT NETWORK!',
+          isVisible: true
+        });
+      } else if (isRegistered === false) {
+        setReferralInfo(null);
+        setAlert({
+          type: 'warning',
+          title: 'Not Registered',
+          message: 'Please register your wallet to continue.',
+          isVisible: true
+        });
+      }
+    }
+  }, [isConnected, isLoading, isRegistered, address]);
+
+  const handleLogin = async () => {
+    if (window.triggerHaptic) window.triggerHaptic('light');
+    try {
+      const success = await validateUser();
+      if (success) {
+        setAlert({
+          type: 'success',
+          title: 'Success!',
+          message: 'Welcome to INOUT NETWORK',
+          isVisible: true
+        });
+        setTimeout(() => navigate('/dashboard'), 1000);
+      } else {
+        setAlert({
+          type: 'warning',
+          title: 'Registration Required',
+          message: 'Please register your account first.',
+          isVisible: true
+        });
+      }
+    } catch (error) {
+      setAlert({
+        type: 'error',
+        title: 'Login Failed',
+        message: 'An error occurred. Please try again.',
+        isVisible: true
+      });
+    }
+  };
+
+  const handleWalletConnect = () => {
+    if (window.triggerHaptic) window.triggerHaptic('light');
+    if (isWrongNetwork) {
+      setAlert({
+        type: 'error',
+        title: 'Wrong Network',
+        message: 'Please switch to Polygon network.',
+        isVisible: true
+      });
+    } else {
+      open();
+    }
+  };
+
+  const handleSwitchNetwork = () => {
+    try {
+      open({ view: 'Networks' });
+    } catch (error) {
+      console.error('Error opening network switcher:', error);
+    }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.6, staggerChildren: 0.15 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { type: "spring", stiffness: 120, damping: 12 }
+    }
+  };
+
+  // Not connected interface
+  if (!isConnected) {
+    return (
+      <>
+        <Alert
+          type={alert.type}
+          title={alert.title}
+          message={alert.message}
+          isVisible={alert.isVisible}
+          onClose={() => setAlert(prev => ({ ...prev, isVisible: false }))}
+        />
+        <div className={`min-h-screen flex items-center justify-center bg-black ${isDesktop ? 'p-12' : 'p-6'}`}>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className={`${isDesktop ? 'w-full max-w-2xl' : 'w-full'} bg-gradient-to-b from-gray-900/95 to-gray-800/95 rounded-xl p-8 shadow-2xl border border-gray-700/50`}
+          >
+            <motion.div variants={itemVariants} className="text-center space-y-4">
+              <motion.img
+                src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png"
+                alt="INOUT NETWORK"
+                className={`${isDesktop ? 'w-40' : 'w-28'} mx-auto`}
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <h1 className={`${isDesktop ? 'text-4xl' : 'text-3xl'} font-bold text-white font-orbitron`}>
+                Enter INOUT NETWORK
+              </h1>
+              <p className="text-gray-300 text-lg">Connect your wallet to start your Web3 journey</p>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="mt-8">
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { name: 'MetaMask', icon: '🦊' },
+                  { name: 'Trust Wallet', icon: '🔒' },
+                  { name: 'Coinbase', icon: '💸' },
+                  { name: 'WalletConnect', icon: '🌐' },
+                ].map((wallet) => (
+                  <motion.button
+                    key={wallet.name}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleWalletConnect}
+                    className="flex items-center justify-center space-x-2 bg-gray-800/50 p-4 rounded-lg border border-gray-600/50 hover:bg-gray-700/50 transition"
+                  >
+                    <span className="text-2xl">{wallet.icon}</span>
+                    <span className="text-white font-medium">{wallet.name}</span>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.button
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleWalletConnect}
+              className="mt-8 w-full bg-blue-600 text-white py-3 rounded-lg font-bold flex items-center justify-center space-x-2 hover:bg-blue-700 transition"
+            >
+              <Wallet className="w-6 h-6" />
+              <span>Connect Now</span>
+            </motion.button>
+
+            <motion.div variants={itemVariants} className="mt-6 text-center">
+              <p className="text-gray-400">New to INOUT NETWORK?</p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                onClick={onSwitchToRegister}
+                className="text-blue-400 font-semibold hover:text-blue-300"
+              >
+                Create an Account
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        </div>
+      </>
+    );
+  }
+
+  // Wrong network interface
+  if (isConnected && isWrongNetworkLocal) {
+    return (
+      <>
+        <Alert
+          type={alert.type}
+          title={alert.title}
+          message={alert.message}
+          isVisible={alert.isVisible}
+          onClose={() => setAlert(prev => ({ ...prev, isVisible: false }))}
+        />
+        <div className={`min-h-screen flex items-center justify-center bg-black ${isDesktop ? 'p-12' : 'p-6'}`}>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className={`${isDesktop ? 'w-full max-w-md' : 'w-full'} bg-gray-900/95 rounded-xl p-8 shadow-2xl border border-gray-700/50`}
+          >
+            <motion.div variants={itemVariants} className="text-center space-y-4">
+              <motion.img
+                src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png"
+                alt="INOUT NETWORK"
+                className={`${isDesktop ? 'w-40' : 'w-28'} mx-auto`}
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <h1 className={`${isDesktop ? 'text-4xl' : 'text-3xl'} font-bold text-white font-orbitron`}>
+                Network Switch Required
+              </h1>
+              <p className="text-gray-300 text-lg">Please switch to Polygon network to proceed</p>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="mt-6 p-4 bg-red-900/30 rounded-lg border border-red-700/50">
+              <div className="flex items-center space-x-2 text-red-300">
+                <AlertCircle className="w-6 h-6" />
+                <div>
+                  <p className="font-semibold">Wrong Network Detected</p>
+                  <p>Current: {chainId === 1 ? 'Ethereum' : chainId === 56 ? 'BSC' : `Chain ${chainId}`}</p>
+                </div>
+              </div>
+              <p className="text-gray-300 mt-2">Connected Wallet: {address?.slice(0, 6)}...{address?.slice(-4)}</p>
+            </motion.div>
+
+            <motion.button
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSwitchNetwork}
+              className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg font-bold flex items-center justify-center space-x-2 hover:bg-blue-700 transition"
+            >
+              <Network className="w-6 h-6" />
+              <span>Switch to Polygon</span>
+            </motion.button>
+
+            <motion.div variants={itemVariants} className="mt-6 text-center">
+              <p className="text-gray-400">New to INOUT NETWORK?</p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                onClick={onSwitchToRegister}
+                className="text-blue-400 font-semibold hover:text-blue-300"
+              >
+                Create an Account
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        </div>
+      </>
+    );
+  }
+
+  // Connected and correct network interface
+  return (
+    <>
+      <Alert
+        type={alert.type}
+        title={alert.title}
+        message={alert.message}
+        isVisible={alert.isVisible}
+        onClose={() => setAlert(prev => ({ ...prev, isVisible: false }))}
+      />
+      <div className={`min-h-screen flex items-center justify-center bg-black ${isDesktop ? 'p-12' : 'p-6'}`}>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className={`${isDesktop ? 'w-full max-w-md' : 'w-full'} bg-gray-900/95 rounded-xl p-8 shadow-2xl border border-gray-700/50`}
+        >
+          <motion.div variants={itemVariants} className="text-center space-y-4">
+            <motion.img
+              src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png"
+              alt="INOUT NETWORK"
+              className={`${isDesktop ? 'w-40' : 'w-28'} mx-auto`}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <h1 className={`${isDesktop ? 'text-4xl' : 'text-3xl'} font-bold text-white font-orbitron`}>
+              Welcome Back
+            </h1>
+            <p className="text-gray-300 text-lg">Access your INOUT NETWORK account</p>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="mt-6 space-y-4">
+            {isConnected && (
+              <div className={`p-4 rounded-lg border ${isLoading ? 'bg-blue-900/30 border-blue-700/50' : isRegistered ? 'bg-green-900/30 border-green-700/50' : 'bg-orange-900/30 border-orange-700/50'}`}>
+                <div className="flex items-center space-x-2">
+                  {isLoading ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-5 h-5 border-2 border-blue-300 border-t-transparent rounded-full"
+                      />
+                      <span className="text-blue-300">Checking account...</span>
+                    </>
+                  ) : isRegistered ? (
+                    <>
+                      <ShieldCheck className="w-5 h-5 text-green-300" />
+                      <span className="text-green-300">Account verified</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-5 h-5 text-orange-300" />
+                      <span className="text-orange-300">Account not registered</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {user && isConnected && (
+              <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-600/50">
+                <p className="text-gray-400 text-sm">Connected Wallet</p>
+                <p className="text-white font-mono">{user.walletAddress.slice(0, 6)}...{user.walletAddress.slice(-4)}</p>
+              </div>
+            )}
+
+            {referralInfo && !referralInfo.isLoading && isRegistered && (
+              <motion.div
+                variants={itemVariants}
+                className="p-4 bg-blue-900/30 rounded-lg border border-blue-700/50"
+              >
+                <div className="text-center">
+                  <Rocket className="w-10 h-10 mx-auto text-blue-300 mb-2" />
+                  <h3 className="text-white font-bold">Joined via Mentor</h3>
+                  <p className="text-gray-300 text-sm mt-1">
+                    Mentor: {referralInfo.address.slice(0, 6)}...{referralInfo.address.slice(-4)}
+                  </p>
+                  <p className="text-gray-400 text-sm mt-2">Thanks for joining our community!</p>
+                </div>
+              </motion.div>
+            )}
+
+            {referralInfo?.isLoading && (
+              <div className="p-4 bg-blue-900/30 rounded-lg border border-blue-700/50 flex items-center space-x-2">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-5 h-5 border-2 border-blue-300 border-t-transparent rounded-full"
+                />
+                <span className="text-blue-300">Loading mentor info...</span>
+              </div>
+            )}
+
+            {isConnected && isRegistered ? (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/dashboard')}
+                disabled={isLoading}
+                className="w-full bg-green-600 text-white py-3 rounded-lg font-bold flex items-center justify-center space-x-2 hover:bg-green-700 transition disabled:opacity-50"
+              >
+                <ArrowRight className="w-6 h-6" />
+                <span>Go to Dashboard</span>
+              </motion.button>
+            ) : isConnected && !isRegistered ? (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onSwitchToRegister}
+                className="w-full bg-green-600 text-white py-3 rounded-lg font-bold flex items-center justify-center space-x-2 hover:bg-green-700 transition"
+              >
+                <Users className="w-6 h-6" />
+                <span>Register Now</span>
+              </motion.button>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLogin}
+                disabled={isLoading}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold flex items-center justify-center space-x-2 hover:bg-blue-700 transition disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
+                  />
+                ) : (
+                  <>
+                    <Key className="w-6 h-6" />
+                    <span>Login</span>
+                  </>
+                )}
+              </motion.button>
+            )}
+
+            {isConnected && !isRegistered && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLogin}
+                disabled={isLoading}
+                className="w-full bg-gray-700/50 text-gray-300 py-2 rounded-lg font-medium hover:bg-gray-600/50 transition"
+              >
+                Retry Registration Check
+              </motion.button>
+            )}
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="mt-6 text-center">
+            <p className="text-gray-400">New to INOUT NETWORK?</p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              onClick={onSwitchToRegister}
+              className="text-blue-400 font-semibold hover:text-blue-300"
+            >
+              Create an Account
+            </motion.button>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="mt-4 flex justify-center space-x-2">
+            <Star className="w-4 h-4 text-yellow-400 animate-pulse" />
+            <p className="text-gray-400 text-sm">Secured by Web3 Technology</p>
+            <Star className="w-4 h-4 text-yellow-400 animate-pulse" />
+          </motion.div>
+        </motion.div>
+      </div>
+    </>
+  );
+};
+
+export default Login;

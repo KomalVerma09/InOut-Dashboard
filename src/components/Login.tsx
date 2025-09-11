@@ -9,6 +9,7 @@ import { config } from '../config/web3Config';
 import { CONTRACTS } from '../contracts';
 import { useAuth } from '../contexts/AuthContext';
 import Alert from './ui/Alert';
+import Tilt from 'react-parallax-tilt';
 import { 
   Wallet, 
   ArrowRight, 
@@ -24,7 +25,9 @@ import {
   Trophy,
   Heart,
   UserCheck,
-  Copy
+  Copy,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface LoginProps {
@@ -63,6 +66,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
     isVisible: false
   });
   const [previousAddress, setPreviousAddress] = useState<string | undefined>();
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   // Fetch referral information when user is registered
   const fetchReferralInfo = async (userAddress: string) => {
@@ -71,7 +75,6 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
       
       console.log('🔍 FETCHING REFERRAL INFO FOR:', userAddress);
       
-      // Get referral from affiliate contract
       const affiliateData = await readContract(config, {
         address: CONTRACTS.AFFILIATE_CONTRACT.address,
         abi: CONTRACTS.AFFILIATE_CONTRACT.abi,
@@ -104,6 +107,14 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
     }
   };
 
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  
+    const nextSlide = () =>
+      setCurrentIndex((prev) => (prev + 1) % features.length);
+    const prevSlide = () =>
+      setCurrentIndex((prev) => (prev - 1 + features.length) % features.length);
+    
+
   // Auto-continue to dashboard if already authenticated
   React.useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -118,7 +129,6 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
     }
   }, [isAuthenticated, isWrongNetworkLocal, navigate]);
 
-  // Track wallet address changes and show notifications
   React.useEffect(() => {
     if (address && address !== previousAddress && previousAddress) {
       console.log('🔄 WALLET CHANGED:', { from: previousAddress, to: address });
@@ -133,16 +143,9 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
     setPreviousAddress(address);
   }, [address, previousAddress]);
 
-  // Show registration status updates
   React.useEffect(() => {
     if (isConnected && !isLoading && isRegistered !== null) {
       if (isRegistered === true) {
-        // Fetch referral info when user is registered
-        if (address) {
-          fetchReferralInfo(address);
-        }
-        
-        // Fetch referral info when user is registered
         if (address) {
           fetchReferralInfo(address);
         }
@@ -155,7 +158,6 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
         });
       } else if (isRegistered === false) {
         setReferralInfo(null);
-        setReferralInfo(null);
         setAlert({
           type: 'warning',
           title: 'Account Not Found',
@@ -166,7 +168,6 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
     }
   }, [isConnected, isLoading, isRegistered, address]);
 
-  // Handle login button click
   const handleLogin = async () => {
     if (window.triggerHaptic) window.triggerHaptic('medium');
     
@@ -184,7 +185,6 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
           isVisible: true
         });
         
-        // Navigate to dashboard after successful login
         setTimeout(() => {
           navigate('/dashboard');
         }, 1000);
@@ -254,6 +254,38 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
     }
   };
 
+  const slideVariants = {
+    hidden: { opacity: 0, x: 100 },
+    visible: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -100 }
+  };
+
+  const features = [
+    {
+      icon: <Shield className={`${isDesktop ? 'h-8 w-8' : 'h-6 w-6'} text-indigo-100`} />,
+      title: 'Secure Connection',
+      description: 'Your keys, your crypto - always secure'
+    },
+    {
+      icon: <Zap className={`${isDesktop ? 'h-8 w-8' : 'h-6 w-6'} text-indigo-100`} />,
+      title: 'Polygon Network',
+      description: 'Fast & low-cost transactions'
+    },
+    {
+      icon: <Wallet className={`${isDesktop ? 'h-8 w-8' : 'h-6 w-6'} text-indigo-100`} />,
+      title: 'Multi-Wallet Support',
+      description: 'MetaMask, Trust, Coinbase & more'
+    }
+  ];
+
+  const handleNextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % features.length);
+  };
+
+  const handlePrevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + features.length) % features.length);
+  };
+
   // If not connected, show wallet connection interface
   if (!isConnected) {
     return (
@@ -266,48 +298,37 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
           onClose={() => setAlert(prev => ({ ...prev, isVisible: false }))}
         />
         
-      <div className={`min-h-screen ${isDesktop ? 'desktop-bg' : 'mobile-bg'} flex items-center justify-center ${isDesktop ? 'px-8 py-12' : 'px-4 py-8'}`}>
+      <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-black flex items-center justify-center ${isDesktop ? 'px-8 py-12' : 'px-4 py-8'}`}>
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className={`${isDesktop ? 'max-w-lg' : 'max-w-md'} w-full space-y-8`}
+          className={`${isDesktop ? 'max-w-xl' : 'max-w-md'} w-full space-y-8 border border-indigo-800/20 shadow-2xl bg-gradient-to-br from-gray-900 via-indigo-950 to-black rounded-2xl p-6`}
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="text-center">
-            <motion.div
-              animate={{ 
-                scale: [1, 1.05, 1],
-                rotate: [0, 2, -2, 0]
-              }}
-              transition={{ 
-                duration: 3, 
-                repeat: Infinity, 
-                ease: "easeInOut" 
-              }}
-              className={`mx-auto ${isDesktop ? 'w-32 h-20' : 'w-20 h-20'} flex items-center justify-center mb-8`}
-            >
-              <img 
-                src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png" 
-                alt="INOUT NETWORK" 
-                className="w-full h-full object-contain"
-              />
-            </motion.div>
+            <motion.img
+              src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png"
+              alt="INOUT NETWORK"
+              className={`w-28 mx-auto`}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
             
             <motion.h1 
-              className={`${isDesktop ? 'text-4xl' : 'text-3xl'} font-bold text-white mb-3`}
+              className={`${isDesktop ? 'text-4xl' : 'text-3xl'} font-bold text-indigo-100 mb-3 font-orbitron`}
               variants={itemVariants}
             >
               Connect Your Wallet
             </motion.h1>
             <motion.p 
-              className={`${isDesktop ? 'text-xl' : 'text-lg'} text-white/70 mb-2`}
+              className={`${isDesktop ? 'text-xl' : 'text-lg'} text-indigo-200/70 mb-2`}
               variants={itemVariants}
             >
-              Securely connect to access <span className="gradient-text font-semibold">INOUT NETWORK</span>
+              Securely connect to access <span className="font-semibold text-indigo-400">INOUT NETWORK</span>
             </motion.p>
             <motion.div 
-              className="flex items-center justify-center space-x-2 text-blue-400"
+              className="flex items-center justify-center space-x-2 text-indigo-300"
               variants={itemVariants}
             >
               <Globe className="h-4 w-4" />
@@ -316,58 +337,54 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
             </motion.div>
           </motion.div>
 
-          {/* Features */}
-          <motion.div
-            variants={itemVariants}
-            className={`${isDesktop ? 'glass-card p-8 rounded-3xl' : 'glass-card-mobile p-6 rounded-2xl'} backdrop-blur-xl space-y-6`}
-          >
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex items-center space-x-4">
-                <div className={`${isDesktop ? 'w-12 h-12' : 'w-10 h-10'} bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center`}>
-                  <Shield className={`${isDesktop ? 'h-6 w-6' : 'h-5 w-5'} text-white`} />
+          <div className="relative w-full max-w-[95%] sm:max-w-xl">
+                  {/* Prev Button */}
+                  <motion.button
+                  whileHover={isDesktop ? {boxShadow: '0 0 20px rgba(79, 70, 229, 0.5)' } : {}}
+                    onClick={prevSlide}
+                    className="absolute left-2 sm:-left-12 top-1/2 -translate-y-1/2 text-white p-2 sm:p-3 bg-white/10 hover:bg-indigo-800 rounded-full z-10 border border-indigo-800/20" 
+                    
+                  >
+                    <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </motion.button>
+          
+                  <motion.div
+                    key={currentIndex}
+                    className="flex justify-center"
+                    initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                    animate={{ opacity: 1, scale: 0.9, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Tilt tiltMaxAngleX={15} tiltMaxAngleY={15} scale={1.05}>
+                      <div className="bg-white/10 backdrop-blur-lg border border-indigo-800/20 rounded-2xl p-6 sm:p-8 shadow-2xl w-full sm:w-[550px] text-center">
+                        <div className="flex justify-center mb-4">
+                          {features[currentIndex].icon}
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-bold text-white mb-2 font-orbitron">
+                          {features[currentIndex].title}
+                        </h2>
+                        <p className="text-gray-300 text-xs sm:text-sm ">
+                          {features[currentIndex].description}
+                        </p>
+                      </div>
+                    </Tilt>
+                  </motion.div>
+          
+                  {/* Next Button */}
+                  <motion.button
+                  whileHover={isDesktop ? {boxShadow: '0 0 20px rgba(79, 70, 229, 0.5)' } : {}}
+                    onClick={nextSlide}
+                    className="absolute right-2 sm:-right-12 top-1/2 -translate-y-1/2 text-white p-2 sm:p-3 bg-white/10 hover:bg-indigo-800 rounded-full z-10 border border-indigo-800/20"
+                  >
+                    <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </motion.button>
                 </div>
-                <div>
-                  <h3 className="text-white font-semibold">Secure Connection</h3>
-                  <p className="text-sm text-white/70">Your keys, your crypto - always secure</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className={`${isDesktop ? 'w-12 h-12' : 'w-10 h-10'} bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center`}>
-                  <Zap className={`${isDesktop ? 'h-6 w-6' : 'h-5 w-5'} text-white`} />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold">Polygon Network</h3>
-                  <p className="text-sm text-white/70">Fast & low-cost transactions</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className={`${isDesktop ? 'w-12 h-12' : 'w-10 h-10'} bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center`}>
-                  <Wallet className={`${isDesktop ? 'h-6 w-6' : 'h-5 w-5'} text-white`} />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold">Multi-Wallet Support</h3>
-                  <p className="text-sm text-white/70">MetaMask, Trust, Coinbase & more</p>
-                </div>
-              </div>
-            </div>
 
-            {/* Connect Wallet Button */}
-            <motion.button
-              whileHover={isDesktop ? { scale: 1.02, y: -2 } : {}}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleWalletConnect}
-              className={`w-full py-4 px-6 rounded-2xl text-white font-semibold ${isDesktop ? 'premium-button' : 'mobile-button'} transition-all duration-300 shadow-xl flex items-center justify-center space-x-3`}
-            >
-              <Wallet className="h-6 w-6" />
-              <span>Connect Wallet</span>
-            </motion.button>
-          </motion.div>
+          
 
           {/* Supported Wallets */}
           <motion.div variants={itemVariants} className="text-center">
-            <p className="text-white/60 text-sm mb-4">Popular wallets supported:</p>
+            <p className="text-indigo-200/60 text-sm mb-4">Popular wallets supported:</p>
             <div className="grid grid-cols-4 gap-4">
               {[
                 { 
@@ -375,43 +392,48 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
                   emoji: '🦊',
                   logo: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg'
                 },
-                { name: 'Trust', emoji: '🛡️' },
-                { name: 'TokenPocket', emoji: '💼' },
-                { name: 'WalletConnect', emoji: '🔗' },
+                { name: 'Trust', emoji: '🔐' },
+                { name: 'TokenPocket', emoji: '📲' },
+                { name: 'WalletConnect', emoji: '🌐' },
               ].map((wallet) => (
-                <motion.div 
-                  key={wallet.name} 
-                  className="text-center"
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                    {wallet.name === 'MetaMask' ? (
-                      <img 
-                        src={wallet.logo} 
-                        alt="MetaMask" 
-                        className="w-8 h-8"
-                      />
-                    ) : (
-                      <span className="text-xl">{wallet.emoji}</span>
-                    )}
-                  </div>
-                  <span className="text-xs text-white/60">{wallet.name}</span>
-                </motion.div>
+                <motion.button
+                            key={wallet.name}
+                            whileHover={{ scale: 1.05, }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => open()}
+                            className="flex flex-col items-center justify-center bg-white/10 backdrop-blur-lg border border-indigo-800/20 rounded-xl p-3 sm:p-4 text-white hover:bg-white/5 transition"
+                          >
+                            <span className="text-2xl sm:text-3xl mb-1 sm:mb-2">
+                              {wallet.emoji}
+                            </span>
+                            <span className="text-xs sm:text-sm md:flex hidden ">{wallet.name}</span>
+                          </motion.button>
               ))}
             </div>
           </motion.div>
 
+          {/* Connect Wallet Button */}
+          <motion.button
+            whileHover={isDesktop ? { scale: 1.05, boxShadow: '0 0 20px rgba(79, 70, 229, 0.5)' } : {}}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleWalletConnect}
+            className={`w-full py-4 px-6 rounded-xl text-indigo-100 font-bold bg-indigo-700 hover:bg-indigo-800 transition-all duration-300 shadow-lg flex items-center justify-center space-x-3 glow-effect`}
+            style={{ boxShadow: '0 0 15px rgba(79, 70, 229, 0.3)' }}
+          >
+            <Wallet className="h-6 w-6" />
+            <span className="font-orbitron">Connect Wallet</span>
+          </motion.button>
+
           {/* Switch to Register */}
           <motion.div 
-            className="text-center pt-4 border-t border-white/10"
+            className="text-center pt-4 border-t border-indigo-800/20"
             variants={itemVariants}
           >
-            <span className="text-white/60 text-sm">Don't have an account? </span>
+            <span className="text-indigo-200/60 text-sm">Don't have an account? </span>
             <motion.button
               type="button"
               onClick={onSwitchToRegister}
-              className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+              className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -436,109 +458,110 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
           onClose={() => setAlert(prev => ({ ...prev, isVisible: false }))}
         />
         
-      <div className={`min-h-screen ${isDesktop ? 'desktop-bg' : 'mobile-bg'} flex items-center justify-center ${isDesktop ? 'px-8 py-12' : 'px-4 py-8'}`}>
+      <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-black flex items-center justify-center ${isDesktop ? 'px-8 py-12' : 'px-4 py-8'}`}>
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className={`${isDesktop ? 'max-w-lg' : 'max-w-md'} w-full space-y-8`}
+          className={`${isDesktop ? 'max-w-lg' : 'max-w-md'} w-full space-y-8 border border-indigo-800/20 shadow-2xl bg-gradient-to-br from-gray-900 via-indigo-950 to-black rounded-2xl p-6`}
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="text-center">
-            <motion.div
-              animate={{ 
-                scale: [1, 1.05, 1],
-                rotate: [0, 2, -2, 0]
-              }}
-              transition={{ 
-                duration: 3, 
-                repeat: Infinity, 
-                ease: "easeInOut" 
-              }}
-              className={`mx-auto ${isDesktop ? 'w-32 h-20' : 'w-20 h-20'} flex items-center justify-center mb-8`}
-            >
-              
-              <img 
-                src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png" 
-                alt="INOUT NETWORK" 
-                className="w-full h-full object-contain"
-              />
-            </motion.div>
+            <motion.img
+              src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png"
+              alt="INOUT NETWORK"
+              className={`w-28 mx-auto`}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
             
             <motion.h1 
-              className={`${isDesktop ? 'text-4xl' : 'text-3xl'} font-bold text-white mb-3`}
+              className={`${isDesktop ? 'text-4xl' : 'text-3xl'} font-bold text-indigo-100 mb-3`}
               variants={itemVariants}
             >
               Wrong Network
             </motion.h1>
             <motion.p 
-              className={`${isDesktop ? 'text-xl' : 'text-lg'} text-white/70 mb-2`}
+              className={`${isDesktop ? 'text-xl' : 'text-lg'} text-indigo-200/70 mb-2`}
               variants={itemVariants}
             >
-              Please switch to <span className="gradient-text font-semibold">Polygon Network</span>
+              Please switch to <span className="font-semibold text-indigo-400">Polygon Network</span>
             </motion.p>
           </motion.div>
 
           {/* Network Switch Card */}
-          <motion.div
-            variants={itemVariants}
-            className={`${isDesktop ? 'glass-card p-8 rounded-3xl' : 'glass-card-mobile p-6 rounded-2xl'} backdrop-blur-xl space-y-6`}
+          <Tilt
+            tiltMaxAngleX={15}
+            tiltMaxAngleY={15}
+            perspective={1000}
+            scale={1.02}
+            transitionSpeed={2000}
+            glareEnable={true}
+            glareMaxOpacity={0.2}
+            glareColor="#ffffff"
+            glarePosition="all"
           >
-            {/* Wrong Network Warning */}
-            <div className="flex items-center justify-center space-x-2 text-red-400 bg-red-500/20 p-4 rounded-2xl border border-red-400/30">
-              <AlertTriangle className="h-6 w-6" />
-              <div className="text-center">
-                <div className="font-semibold">Wrong Network!</div>
-                <div className="text-sm">Please switch to Polygon</div>
-              </div>
-            </div>
-
-            {/* Connected Wallet Info */}
-            <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-              <div className="text-white/70 text-sm mb-1">Connected Wallet</div>
-              <div className="text-white font-mono text-sm">
-                {address?.slice(0, 6)}...{address?.slice(-4)}
-              </div>
-              <div className="text-red-400 text-sm mt-1">
-                Current Network: {chainId === 1 ? 'Ethereum' : chainId === 56 ? 'BSC' : `Chain ${chainId}`}
-              </div>
-            </div>
-
-            {/* Switch Network Button */}
-            <motion.button
-              whileHover={isDesktop ? { scale: 1.02, y: -2 } : {}}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSwitchNetwork}
-              className={`w-full py-4 px-6 rounded-2xl text-white font-semibold bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 transition-all duration-300 shadow-xl flex items-center justify-center space-x-3`}
+            <motion.div
+              variants={itemVariants}
+              className={`${isDesktop ? 'p-8' : 'p-6'} bg-indigo-900/30 backdrop-blur-xl border border-indigo-800/20 rounded-xl shadow-2xl`}
             >
-              <Zap className="h-6 w-6" />
-              <span>Switch to Polygon Network</span>
-            </motion.button>
-
-            {/* Manual Network Switch Instructions */}
-            <div className="text-center text-sm text-white/60">
-              <p>Or manually switch in your wallet:</p>
-              <div className="mt-2 p-3 bg-white/5 rounded-xl text-left">
-                <div className="font-mono text-xs space-y-1">
-                  <div><strong>Network Name:</strong> Polygon</div>
-                  <div><strong>RPC URL:</strong> https://polygon-rpc.com</div>
-                  <div><strong>Chain ID:</strong> 137</div>
-                  <div><strong>Symbol:</strong> MATIC</div>
+              {/* Wrong Network Warning */}
+              <div className="flex items-center justify-center space-x-2 text-red-400 bg-red-500/20 p-4 rounded-xl border border-red-400/30">
+                <AlertTriangle className="h-6 w-6" />
+                <div className="text-center">
+                  <div className="font-semibold">Wrong Network!</div>
+                  <div className="text-sm">Please switch to Polygon</div>
                 </div>
               </div>
-            </div>
-          </motion.div>
+
+              {/* Connected Wallet Info */}
+              <div className="p-4 bg-indigo-900/20 rounded-xl border border-indigo-800/20 mt-4">
+                <div className="text-indigo-200/70 text-sm mb-1">Connected Wallet</div>
+                <div className="text-indigo-100 font-mono text-sm">
+                  {address?.slice(0, 6)}...{address?.slice(-4)}
+                </div>
+                <div className="text-red-400 text-sm mt-1">
+                  Current Network: {chainId === 1 ? 'Ethereum' : chainId === 56 ? 'BSC' : `Chain ${chainId}`}
+                </div>
+              </div>
+
+              {/* Switch Network Button */}
+              <motion.button
+                whileHover={isDesktop ? { scale: 1.05, boxShadow: '0 0 20px rgba(79, 70, 229, 0.5)' } : {}}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleSwitchNetwork}
+                className={`w-full py-4 px-6 rounded-xl text-indigo-100 font-bold bg-indigo-700 hover:bg-indigo-800 transition-all duration-300 shadow-lg flex items-center justify-center space-x-3 mt-4 glow-effect`}
+                style={{ boxShadow: '0 0 15px rgba(79, 70, 229, 0.3)' }}
+              >
+                <Zap className="h-6 w-6" />
+                <span>Switch to Polygon Network</span>
+              </motion.button>
+
+              {/* Manual Network Switch Instructions */}
+              <div className="text-center text-sm text-indigo-200/60 mt-4">
+                <p>Or manually switch in your wallet:</p>
+                <div className="mt-2 p-3 bg-indigo-900/20 rounded-xl text-left">
+                  <div className="font-mono text-xs space-y-1 text-indigo-200">
+                    <div><strong>Network Name:</strong> Polygon</div>
+                    <div><strong>RPC URL:</strong> https://polygon-rpc.com</div>
+                    <div><strong>Chain ID:</strong> 137</div>
+                    <div><strong>Symbol:</strong> MATIC</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </Tilt>
 
           {/* Switch to Register */}
           <motion.div 
-            className="text-center pt-4 border-t border-white/10"
+            className="text-center pt-4 border-t border-indigo-800/20"
             variants={itemVariants}
           >
-            <span className="text-white/60 text-sm">Don't have an account? </span>
+            <span className="text-indigo-200/60 text-sm">Don't have an account? </span>
             <motion.button
               type="button"
               onClick={onSwitchToRegister}
-              className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+              className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -562,391 +585,424 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
         onClose={() => setAlert(prev => ({ ...prev, isVisible: false }))}
       />
       
-    <div className={`min-h-screen ${isDesktop ? 'desktop-bg' : 'mobile-bg'} flex items-center justify-center ${isDesktop ? 'px-8 py-12' : 'px-4 py-8'}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-black flex items-center justify-center ${isDesktop ? 'px-8 py-12' : 'px-4 py-8'}`}>
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className={`${isDesktop ? 'max-w-lg' : 'max-w-md'} w-full space-y-8`}
+        className={`${isDesktop ? 'max-w-lg' : 'max-w-md'} w-full space-y-8 border border-indigo-800/20 shadow-2xl bg-gradient-to-br from-gray-900 via-indigo-950 to-black rounded-2xl p-6`}
       >
         {/* Logo and Header */}
         <motion.div variants={itemVariants} className="text-center">
-          <motion.div
-            animate={{ 
-              scale: [1, 1.05, 1],
-              rotate: [0, 1, -1, 0]
-            }}
-            transition={{ 
-              duration: 4, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
-            className={`mx-auto ${isDesktop ? 'w-32 h-20' : 'w-20 h-20'} flex items-center justify-center mb-8`}
-          >
-            <img 
-              src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png" 
-              alt="INOUT NETWORK" 
-              className="w-full h-full object-contain"
+          <motion.img
+              src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png"
+              alt="INOUT NETWORK"
+              className={`w-28 mx-auto`}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             />
-          </motion.div>
           
           <motion.h1 
-            className={`${isDesktop ? 'text-4xl' : 'text-3xl'} font-bold text-white mb-3`}
+            className={`${isDesktop ? 'text-4xl' : 'text-3xl'} font-bold text-indigo-100 mb-3 font-orbitron`}
             variants={itemVariants}
           >
             Welcome Back
           </motion.h1>
           <motion.p 
-            className={`${isDesktop ? 'text-xl' : 'text-lg'} text-white/70 mb-2`}
+            className={`${isDesktop ? 'text-xl' : 'text-lg'} text-indigo-200/70 mb-2`}
             variants={itemVariants}
           >
-            Sign in to <span className="gradient-text font-semibold">INOUT NETWORK</span>
+            Sign in to <span className="font-semibold text-indigo-400">INOUT NETWORK</span>
           </motion.p>
           <motion.div 
-            className="flex items-center justify-center space-x-2 text-blue-400"
+            className="flex items-center justify-center space-x-2 text-indigo-300"
             variants={itemVariants}
           >
-            <CheckCircle className="h-4 w-4" />
+            <Star className="h-4 w-4" />
             <span className="text-sm">Web3 Financial Platform</span>
-            <CheckCircle className="h-4 w-4" />
+            <Star className="h-4 w-4" />
+            
           </motion.div>
         </motion.div>
 
         {/* Login Form */}
-        <motion.div
-          variants={itemVariants}
-          className={`${isDesktop ? 'glass-card p-8 rounded-3xl' : 'glass-card-mobile p-6 rounded-2xl'} backdrop-blur-xl`}
-        >
-          <div className="space-y-6">
-            {/* Validation Status */}
-            {isConnected && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`p-4 rounded-2xl border flex items-center space-x-3 ${
-                  isLoading ? 'bg-blue-500/20 border-blue-400/30 text-blue-400' :
-                  isRegistered === true ? 'bg-green-500/20 border-green-400/30 text-green-400' :
-                  isRegistered === false ? 'bg-orange-500/20 border-orange-400/30 text-orange-400' :
-                  'bg-gray-500/20 border-gray-400/30 text-gray-400'
-                }`}
-              >
-                {isLoading ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full"
-                    />
-                    <span>Checking registration status...</span>
-                  </>
-                ) : isRegistered === true ? (
-                  <>
-                    <CheckCircle className="h-5 w-5" />
-                    <span>Account verified! Ready to login.</span>
-                  </>
-                ) : isRegistered === false ? (
-                  <>
-                    <AlertTriangle className="h-5 w-5" />
-                    <span>Account not registered. Please register first.</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Ready to check registration status</span>
-                  </>
-                )}
-              </motion.div>
-            )}
+        
+          <motion.div
+            variants={itemVariants}
+            className={``}
+          >
+            <div className="space-y-6">
+              {/* Validation Status */}
+              {isConnected && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`p-4 rounded-xl border flex items-center space-x-3 ${
+                    isLoading ? 'bg-blue-600/20 border-blue-500/30 text-blue-400' :
+                    isRegistered === true ? 'bg-green-600/20 border-green-500/30 text-green-400' :
+                    isRegistered === false ? 'bg-orange-600/20 border-orange-500/30 text-orange-400' :
+                    'bg-gray-600/20 border-gray-500/30 text-gray-400'
+                  }`}
+                >
+                  {isLoading ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full"
+                      />
+                      <span>Checking registration status...</span>
+                    </>
+                  ) : isRegistered === true ? (
+                    <>
+                      <CheckCircle className="h-5 w-5" />
+                      <span>Account verified! Ready to login.</span>
+                    </>
+                  ) : isRegistered === false ? (
+                    <>
+                      <AlertTriangle className="h-5 w-5" />
+                      <span>Account not registered. Please register first.</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Ready to check registration status</span>
+                    </>
+                  )}
+                </motion.div>
+              )}
 
-            {/* User Info (if connected) */}
-            {user && isConnected && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-4 bg-white/5 rounded-2xl border border-white/10"
-              >
-                <div className="text-white/70 text-sm mb-1">Connected Wallet</div>
-                <div className="text-white font-mono text-sm">
-                  {user.walletAddress.slice(0, 6)}...{user.walletAddress.slice(-4)}
-                </div>
-              </motion.div>
-            )}
-            
-            {/* Referral Gratitude Section */}
-            {referralInfo && !referralInfo.isLoading && isRegistered === true && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3, type: "spring", stiffness: 300 }}
-                className="relative overflow-hidden"
-              >
-                {/* Animated background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 animate-gradient rounded-2xl"></div>
-                
-                {/* Floating hearts animation */}
-                {[...Array(6)].map((_, i) => (
+              {/* User Info (if connected) */}
+              {user && isConnected && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-indigo-900/20 rounded-xl border border-indigo-800/20"
+                >
+                  <div className="text-indigo-200/70 text-sm mb-1">Connected Wallet</div>
+                  <div className="text-indigo-100 font-mono text-sm">
+                    {user.walletAddress.slice(0, 6)}...{user.walletAddress.slice(-4)}
+                  </div>
+                </motion.div>
+              )}
+              
+              {/* Referral Gratitude Section */}
+              {referralInfo && !referralInfo.isLoading && isRegistered === true && (
+                <Tilt
+                  tiltMaxAngleX={15}
+                  tiltMaxAngleY={15}
+                  perspective={1000}
+                  scale={1.02}
+                  transitionSpeed={2000}
+                  glareEnable={true}
+                  glareMaxOpacity={0.2}
+                  glareColor="#ffffff"
+                  glarePosition="all"
+                >
                   <motion.div
-                    key={i}
-                    className="absolute text-pink-400 opacity-60"
-                    animate={{
-                      y: [0, -20, 0],
-                      x: [0, Math.sin(i) * 10, 0],
-                      scale: [1, 1.2, 1],
-                      opacity: [0.6, 1, 0.6]
-                    }}
-                    transition={{
-                      duration: 2 + i * 0.3,
-                      repeat: Infinity,
-                      delay: i * 0.2
-                    }}
-                    style={{
-                      left: `${15 + i * 12}%`,
-                      top: `${10 + (i % 2) * 20}%`
-                    }}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring", stiffness: 300 }}
+                    className="relative overflow-hidden"
                   >
-                    <Heart className="h-3 w-3 fill-current" />
-                  </motion.div>
-                ))}
-                
-                <div className="relative z-10 p-6 rounded-2xl border border-gradient-to-r from-pink-400/30 to-purple-400/30">
-                  <div className="text-center">
-                    {/* Celebration Header */}
-                    <motion.div
-                      animate={{ 
-                        rotate: [0, 10, -10, 0],
-                        scale: [1, 1.1, 1]
-                      }}
-                      transition={{ 
-                        duration: 2, 
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                      className="text-4xl mb-3"
-                    >
-                      🎉✨🙏
-                    </motion.div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/20 via-purple-600/20 to-blue-600/20 animate-gradient rounded-xl"></div>
                     
-                    <motion.h3 
-                      className="text-lg font-bold text-white mb-2"
-                      animate={{
-                        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                      }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      style={{
-                        background: 'linear-gradient(135deg, #f59e0b 0%, #ec4899 50%, #8b5cf6 100%)',
-                        backgroundSize: '200% 200%',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
-                      }}
-                    >
-                      Welcome to the INOUT Family! 🚀
-                    </motion.h3>
+                    {[...Array(6)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute text-indigo-400 opacity-60"
+                        animate={{
+                          y: [0, -20, 0],
+                          x: [0, Math.sin(i) * 10, 0],
+                          scale: [1, 1.2, 1],
+                          opacity: [0.6, 1, 0.6]
+                        }}
+                        transition={{
+                          duration: 2 + i * 0.3,
+                          repeat: Infinity,
+                          delay: i * 0.2
+                        }}
+                        style={{
+                          left: `${15 + i * 12}%`,
+                          top: `${10 + (i % 2) * 20}%`
+                        }}
+                      >
+                        <Heart className="h-3 w-3 fill-current" />
+                      </motion.div>
+                    ))}
                     
-                    <p className="text-white/80 text-sm mb-4">
-                      You joined through an amazing mentor who believes in your success! 💫
-                    </p>
-                    
-                    {/* Referral Info Card */}
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      className="bg-white/10 rounded-xl p-4 border border-white/20 backdrop-blur-sm"
-                    >
-                      <div className="flex items-center justify-center space-x-3 mb-2">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full flex items-center justify-center">
-                          <UserCheck className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <div className="text-white/70 text-xs">Your Mentor</div>
-                          <div className="text-white font-mono text-sm font-bold">
-                            {referralInfo.address.slice(0, 8)}...{referralInfo.address.slice(-6)}
-                          </div>
-                        </div>
-                      </div>
-                      
+                    <div className="relative z-10 p-6 rounded-xl border border-indigo-600/30">
                       <div className="text-center">
                         <motion.div
-                          animate={{ scale: [1, 1.05, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="text-yellow-400 text-sm font-semibold mb-1"
+                          animate={{ 
+                            rotate: [0, 10, -10, 0],
+                            scale: [1, 1.1, 1]
+                          }}
+                          transition={{ 
+                            duration: 2, 
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          className="text-4xl mb-3"
                         >
-                          🌟 Thank you for trusting us! 🌟
+                          🎉✨🙏
                         </motion.div>
-                        <p className="text-white/60 text-xs">
-                          Together, we'll build your financial freedom! 💎
+                        
+                        <motion.h3 
+                          className="text-lg font-bold text-indigo-100 mb-2"
+                          animate={{
+                            backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                          }}
+                          transition={{ duration: 3, repeat: Infinity }}
+                          style={{
+                            background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #3b82f6 100%)',
+                            backgroundSize: '200% 200%',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text'
+                          }}
+                        >
+                          Welcome to the INOUT Family! 🚀
+                        </motion.h3>
+                        
+                        <p className="text-indigo-200/80 text-sm mb-4">
+                          You joined through an amazing mentor who believes in your success! 💫
                         </p>
+                        
+                        <motion.div
+                          whileHover={{ scale: 1.02 }}
+                          className="bg-indigo-900/20 rounded-xl p-4 border border-indigo-800/20 backdrop-blur-sm"
+                        >
+                          <div className="flex items-center justify-center space-x-3 mb-2">
+                            <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
+                              <UserCheck className="h-5 w-5 text-indigo-100" />
+                            </div>
+                            <div>
+                              <div className="text-indigo-200/70 text-xs">Your Mentor</div>
+                              <div className="text-indigo-100 font-mono text-sm font-bold">
+                                {referralInfo.address.slice(0, 8)}...{referralInfo.address.slice(-6)}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="text-center">
+                            <motion.div
+                              animate={{ scale: [1, 1.05, 1] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className="text-indigo-300 text-sm font-semibold mb-1"
+                            >
+                              🌟 Thank you for trusting us! 🌟
+                            </motion.div>
+                            <p className="text-indigo-200/60 text-xs">
+                              Together, we'll build your financial freedom! 💎
+                            </p>
+                          </div>
+                        </motion.div>
+                        
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.5 }}
+                          className="mt-4 text-center"
+                        >
+                          <div className="text-2xl mb-2">🤝💖</div>
+                          <p className="text-indigo-200/70 text-xs italic">
+                            "Success is sweeter when shared with those who believed in you first"
+                          </p>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </Tilt>
+              )}
+              
+              {/* Loading referral info */}
+              {referralInfo?.isLoading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-blue-600/20 rounded-xl border border-blue-500/30 flex items-center space-x-3"
+                >
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full"
+                  />
+                  <span className="text-blue-400 text-sm">Loading your mentor info...</span>
+                </motion.div>
+              )}
+              
+              {/* Debug Info */}
+              {isConnected && process.env.NODE_ENV === 'development' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-3 bg-gray-600/20 rounded-xl border border-gray-500/30 text-xs"
+                >
+                  <div className="text-indigo-200/70 mb-1">Debug Info:</div>
+                  <div className="text-indigo-200/60 space-y-1">
+                    <div>Connected: {isConnected ? '✅' : '❌'}</div>
+                    <div>Registered: {isRegistered === true ? '✅' : isRegistered === false ? '❌' : '⏳'}</div>
+                    <div>Loading: {isLoading ? '⏳' : '✅'}</div>
+                    <div>Address: {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'None'}</div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Action Buttons */}
+              {!isConnected ? (
+                <motion.button
+                  whileHover={isDesktop ? { scale: 1.05, boxShadow: '0 0 20px rgba(79, 70, 229, 0.5)' } : {}}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleWalletConnect}
+                  className={`w-full py-4 px-6 rounded-xl text-indigo-100 font-bold bg-indigo-700 hover:bg-indigo-800 transition-all duration-300 shadow-lg flex items-center justify-center space-x-3 glow-effect`}
+                  style={{ boxShadow: '0 0 15px rgba(79, 70, 229, 0.3)' }}
+                >
+                  <Wallet className="h-6 w-6" />
+                  <span className='font-orbitron'>Connect Wallet</span>
+                </motion.button>
+              ) : (
+                isRegistered === true ? (
+                  <motion.button
+                    whileHover={isDesktop ? { scale: 1.05, boxShadow: '0 0 20px rgba(79, 70, 229, 0.5)' } : {}}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      console.log('✅ PROCEEDING TO DASHBOARD - User is registered');
+                      navigate('/dashboard');
+                    }}
+                    disabled={isLoading}
+                    className={`w-full py-4 px-6 rounded-xl text-indigo-100 font-bold bg-green-600 hover:bg-green-700 transition-all duration-300 shadow-lg flex items-center justify-center space-x-3 disabled:opacity-50 glow-effect`}
+                    style={{ boxShadow: '0 0 15px rgba(34, 197, 94, 0.3)' }}
+                  >
+                    <CheckCircle className="h-6 w-6" />
+                    <span>Proceed to Dashboard</span>
+                    <ArrowRight className="h-5 w-5" />
+                  </motion.button>
+                ) : isRegistered === false ? (
+                  <div className="space-y-3">
+                    <motion.button
+                      whileHover={isDesktop ? { scale: 1.05, boxShadow: '0 0 20px rgba(79, 70, 229, 0.5)' } : {}}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={onSwitchToRegister}
+                      className={`w-full py-4 px-6 rounded-xl text-indigo-100 font-bold bg-green-600 hover:bg-green-700 transition-all duration-300 shadow-lg flex items-center justify-center space-x-3 glow-effect`}
+                      style={{ boxShadow: '0 0 15px rgba(34, 197, 94, 0.3)' }}
+                    >
+                      <span className='font-orbitron'>Register New Account</span>
+                      <ArrowRight className="h-5 w-5" />
+                    </motion.button>
+                  </div>
+                ) : (
+                  <motion.button
+                    whileHover={isDesktop ? { scale: 1.05, boxShadow: '0 0 20px rgba(79, 70, 229, 0.5)' } : {}}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleLogin}
+                    disabled={isLoading}
+                    className={`w-full py-4 px-6 rounded-xl text-indigo-100 font-bold bg-indigo-700 hover:bg-indigo-800 transition-all duration-300 shadow-lg flex items-center justify-center space-x-3 disabled:opacity-50 glow-effect`}
+                    style={{ boxShadow: '0 0 15px rgba(79, 70, 229, 0.3)' }}
+                  >
+                    {isLoading ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-6 h-6 border-2 border-indigo-100 border-t-transparent rounded-full"
+                      />
+                    ) : (
+                      <>
+                        <Wallet className="h-6 w-6" />
+                        <span className='font-orbitron'>Login</span>
+                      </>
+                    )}
+                  </motion.button>
+                )
+              )}
+
+              {/* Additional Check Registration Button for registered users */}
+              {isConnected && isRegistered === false && (
+                <motion.button
+                  whileHover={isDesktop ? { scale: 1.05 } : {}}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleLogin}
+                  disabled={isLoading}
+                  className={`w-full py-3 px-6 rounded-xl text-indigo-200/70 hover:text-indigo-100 border border-indigo-800/20 hover:border-indigo-700/40 transition-all duration-200 flex items-center justify-center space-x-2`}
+                >
+                  <span className=''>Check Registration Again</span>
+                </motion.button>
+              )}
+
+              {/* Features Slider */}
+              <motion.div 
+                className="relative overflow-hidden"
+                variants={itemVariants}
+              >
+                <div className="relative">
+                  
+                    <motion.div
+                      key={currentSlide}
+                      variants={slideVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      transition={{ duration: 0.5 }}
+                      className={`${isDesktop ? 'p-8' : 'p-6'} bg-indigo-900/30 backdrop-blur-xl border border-indigo-800/20 rounded-xl shadow-2xl`}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className={`${isDesktop ? 'w-16 h-16' : 'w-12 h-12'} bg-indigo-600 rounded-xl flex items-center justify-center`}>
+                          {features[currentSlide].icon}
+                        </div>
+                        <div>
+                          <h3 className="text-indigo-100 font-semibold text-lg font-orbitron">{features[currentSlide].title}</h3>
+                          <p className="text-sm text-indigo-200/70">{features[currentSlide].description}</p>
+                        </div>
                       </div>
                     </motion.div>
-                    
-                    {/* Gratitude Message */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 }}
-                      className="mt-4 text-center"
+                  <div className="flex justify-between mt-4 px-1 pb-1">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handlePrevSlide}
+                      className="p-2 bg-indigo-800/50 rounded-full text-indigo-300 hover:bg-indigo-700/50"
                     >
-                      <div className="text-2xl mb-2">🤝💖</div>
-                      <p className="text-white/70 text-xs italic">
-                        "Success is sweeter when shared with those who believed in you first"
-                      </p>
-                    </motion.div>
+                      <ChevronLeft className="h-6 w-6" />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleNextSlide}
+                      className="p-2 bg-indigo-800/50 rounded-full text-indigo-300 hover:bg-indigo-700/50"
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </motion.button>
                   </div>
                 </div>
               </motion.div>
-            )}
-            
-            {/* Loading referral info */}
-            {referralInfo?.isLoading && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-4 bg-blue-500/20 rounded-2xl border border-blue-400/30 flex items-center space-x-3"
-              >
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full"
-                />
-                <span className="text-blue-400 text-sm">Loading your mentor info...</span>
-              </motion.div>
-            )}
-            
-            {/* Debug Info */}
-            {isConnected && process.env.NODE_ENV === 'development' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-3 bg-gray-500/20 rounded-xl border border-gray-400/30 text-xs"
-              >
-                <div className="text-white/70 mb-1">Debug Info:</div>
-                <div className="text-white/60 space-y-1">
-                  <div>Connected: {isConnected ? '✅' : '❌'}</div>
-                  <div>Registered: {isRegistered === true ? '✅' : isRegistered === false ? '❌' : '⏳'}</div>
-                  <div>Loading: {isLoading ? '⏳' : '✅'}</div>
-                  <div>Address: {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'None'}</div>
-                </div>
-              </motion.div>
-            )}
 
-            {/* Action Buttons */}
-            {!isConnected ? (
-              <motion.button
-                whileHover={isDesktop ? { scale: 1.02, y: -2 } : {}}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleWalletConnect}
-                className={`w-full py-4 px-6 rounded-2xl text-white font-semibold ${isDesktop ? 'premium-button' : 'mobile-button'} transition-all duration-300 shadow-xl flex items-center justify-center space-x-3`}
+              {/* Switch to Register */}
+              <motion.div 
+                className="text-center pt-4 border-t border-indigo-800/20"
+                variants={itemVariants}
               >
-                <Wallet className="h-6 w-6" />
-                <span>Connect Wallet</span>
-              </motion.button>
-            ) : (
-              // Show appropriate button based on registration status
-              isRegistered === true ? (
+                <span className="text-indigo-200/60 text-sm">Don't have an account? </span>
                 <motion.button
-                  whileHover={isDesktop ? { scale: 1.02, y: -2 } : {}}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    console.log('✅ PROCEEDING TO DASHBOARD - User is registered');
-                    navigate('/dashboard');
-                  }}
-                  disabled={isLoading}
-                  className={`w-full py-4 px-6 rounded-2xl text-white font-semibold bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 transition-all duration-300 shadow-xl flex items-center justify-center space-x-3 disabled:opacity-50`}
+                  type="button"
+                  onClick={onSwitchToRegister}
+                  className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <CheckCircle className="h-6 w-6" />
-                  <span>Proceed to Dashboard</span>
-                  <ArrowRight className="h-5 w-5" />
+                  Sign up
                 </motion.button>
-              ) : isRegistered === false ? (
-                <div className="space-y-3">
-                  <motion.button
-                    whileHover={isDesktop ? { scale: 1.02, y: -2 } : {}}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={onSwitchToRegister}
-                    className={`w-full py-4 px-6 rounded-2xl text-white font-semibold bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 transition-all duration-300 shadow-xl flex items-center justify-center space-x-3`}
-                  >
-                    <span>Register New Account</span>
-                    <ArrowRight className="h-5 w-5" />
-                  </motion.button>
-                </div>
-              ) : (
-                // Default login button when registration status is unknown
-                <motion.button
-                  whileHover={isDesktop ? { scale: 1.02, y: -2 } : {}}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleLogin}
-                  disabled={isLoading}
-                  className={`w-full py-4 px-6 rounded-2xl text-white font-semibold bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 transition-all duration-300 shadow-xl flex items-center justify-center space-x-3 disabled:opacity-50`}
-                >
-                  {isLoading ? (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
-                    />
-                  ) : (
-                    <>
-                      <Wallet className="h-6 w-6" />
-                      <span>Login</span>
-                    </>
-                  )}
-                </motion.button>
-              )
-            )}
-
-            {/* Additional Check Registration Button for registered users */}
-            {isConnected && isRegistered === false && (
-              <motion.button
-                whileHover={isDesktop ? { scale: 1.02, y: -2 } : {}}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleLogin}
-                disabled={isLoading}
-                className={`w-full py-3 px-6 rounded-2xl text-white/70 hover:text-white border border-white/20 hover:border-white/40 transition-all duration-200 flex items-center justify-center space-x-2`}
-              >
-                <span>Check Registration Again</span>
-              </motion.button>
-            )}
-
-            {/* Features */}
-            <motion.div 
-              className="grid grid-cols-1 gap-3"
-              variants={itemVariants}
-            >
-              <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-xl">
-                <Shield className="h-5 w-5 text-green-400" />
-                <span className="text-white/80 text-sm">Secure Web3 Authentication</span>
-              </div>
-              <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-xl">
-                <Sparkles className="h-5 w-5 text-blue-400" />
-                <span className="text-white/80 text-sm">No Passwords Required</span>
-              </div>
-            </motion.div>
-
-            {/* Switch to Register */}
-            <motion.div 
-              className="text-center pt-4 border-t border-white/10"
-              variants={itemVariants}
-            >
-              <span className="text-white/60 text-sm">Don't have an account? </span>
-              <motion.button
-                type="button"
-                onClick={onSwitchToRegister}
-                className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Sign up
-              </motion.button>
-            </motion.div>
-          </div>
-        </motion.div>
+              </motion.div>
+            </div>
+          </motion.div>
+        {/* </Tilt> */}
 
         {/* Security Badge */}
         <motion.div
           variants={itemVariants}
           className="text-center"
         >
-          <div className="inline-flex items-center space-x-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
+          <div className="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-900/20 rounded-full border border-indigo-800/20">
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-            <span className="text-white/60 text-xs">Secured by Web3 Technology</span>
+            <span className="text-indigo-200/60 text-xs">Secured by Web3 Technology</span>
           </div>
         </motion.div>
       </motion.div>

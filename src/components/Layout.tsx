@@ -125,16 +125,16 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab = 'home', onTabChan
               <div className="flex items-center justify-between">
                 {/* Logo Section */}
                 <motion.div 
-                  className="flex items-center space-x-3"
+                  className="flex items-center"
                   initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  animate={{ opacity: 1, x: 0.8 }}
                   transition={{ duration: 0.6 }}
                 >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg">
+                  <div className="h-16 w-28">
                     <img 
                       src="https://raw.githubusercontent.com/inquisitiveScholar/images/refs/heads/main/InOut-Images/logo.png" 
                       alt="INOUT" 
-                      className="w-full h-16 object-contain"
+                      className="h-full w-full object-contain"
                     />
                   </div>
                   {/* <div>
